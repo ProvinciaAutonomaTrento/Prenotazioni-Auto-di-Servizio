@@ -1,0 +1,111 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="Site.master.cs" Inherits="SiteMaster" %>
+
+<!DOCTYPE html>
+	<link rel="stylesheet" href="css/stile_od.css" type="text/css" media="screen" />
+	<link rel="stylesheet" href="css/stile_1.css" type="text/css" media="screen" />
+		
+	<link rel="stylesheet" href="css/stile_od.php?h=1" media="screen" type="text/css" />
+	<link rel="stylesheet" href="css/print.css" type="text/css" media="print" />
+<script type="text/javascript">
+    function vai() {
+        var pv = null;
+        pv = document.getElementById('miop');
+        pv.setAttribute('miop', 'Heila.... ho cambiato testo nel paragrafo html');
+        alert("Heil!");
+    };
+</script>
+<style>
+    .lungo {
+        position: relative;
+        height: 109px;       
+    
+    }
+    .sottoadx {
+        position: absolute;
+        right: 0px;
+        top: 1px;
+        max-width: 100%;               
+        background-repeat: repeat-x;
+        z-index: -2;
+    }
+    .dentroadx {
+        position: absolute;
+        top: 11px;
+        right: 10px;
+        width: 171px;
+        height: 78px;
+        border: none;
+    }
+    .adx {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        width: 171px;
+        height: 78px;
+    }
+    .adxrela {
+        position: relative;
+        top: 0px;
+        right: 5px;
+    }
+    .dietro {
+        z-index: -1; 
+    }
+    .riempidietro {
+        max-width: 100%;
+        height: auto;
+        z-index: -1; 
+    }
+    .maxwidth1600 {
+        max-width: 1600px;
+        height: 151px;
+        z-index: -1;
+    }
+        .auto-testata {
+            max-width: 100%;
+            height: 121px;
+            border: none;
+            z-index: -1;
+            text-align: left;
+            float: left;
+        }
+        .auto-allungaadx {
+            position: absolute;
+            max-width: 100%;
+            width: 100%;
+            height: 121px;
+            border: none;
+            z-index: -2;
+        }
+        .centra {
+            margin-left: auto; 
+            margin-right: auto;
+        }
+</style>
+<html lang="it">
+<head runat="server">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%: Page.Title %></title>
+</head>
+<body>
+ <form runat="server">
+    <div > 
+         <div class="centra">
+             <img class="auto-testata" src="img/gassx300.png" alt="Logo Gestione flotta lato sinistra"/>
+             <div class="dentroadx">
+                    <img class="auto-testata" src="img/gasdx300.png" alt="Logo Gestione flotta lato destro"/>                    
+             </div>           
+         </div>
+    </div>
+    <div style="clear: both;"></div>
+    <div class="container body-content">
+            <asp:ContentPlaceHolder ID="MainContent" runat="server">
+            </asp:ContentPlaceHolder>
+            <footer>
+            </footer>
+    </div>
+ </form>
+</body>
+</html>
