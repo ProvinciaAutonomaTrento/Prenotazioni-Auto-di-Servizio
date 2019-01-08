@@ -1,4 +1,23 @@
-﻿using System;
+﻿ /*
+ * Copyright(C) 2017 Provincia Autonoma di Trento
+ *
+ * This file is part of<nome applicativo>.
+ * Pitre is free software: you can redistribute it and/or modify
+ * it under the terms of the LGPL as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pitre is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the LGPL v. 3
+ * along with Pitre.If not, see<https://www.gnu.org/licenses/lgpl.html>.
+ * 
+ */
+
+using System;
 using System.Web.UI;
 using System.Data;
 using System.Text;
@@ -26,13 +45,13 @@ public partial class menu : System.Web.UI.Page
                 Response.Redirect("default.aspx");
             }
             LBenvenuto.Text = " Benvenuto/a " + utenti.nome + " " + utenti.cognome;
-
-			if (utenti.potere >= 10) pPrenota.Visible = true; else pPrenota.Visible = false;
-			if (utenti.potere == 15) pServizio.Visible = true; else pServizio.Visible = false;
+            pPrenota.Visible = true;
+            if (utenti.potere == 10) { PRegistro.Visible = true; } else PRegistro.Visible = true;
+            if (utenti.potere == 15) pServizio.Visible = true; else pServizio.Visible = false;
 			if (utenti.potere >= 20) PRegistro.Visible = true; else PRegistro.Visible = false;
 			if (utenti.potere >= 50)  pGestione.Visible = true; else pGestione.Visible = false; 
 			if (utenti.potere >= 100) { pTabelle.Visible = true; pFlotta.Visible = true; }
-			if (utenti.potere >= 120) pAggiorna.Visible = true;
+            if (utenti.potere >= 120) { pAggiorna.Visible = true; pServizio.Visible = true; }
 				if (Request.QueryString["msg"] != null)
                 Stato(Request.QueryString["msg"].ToString(), rosso);
         }

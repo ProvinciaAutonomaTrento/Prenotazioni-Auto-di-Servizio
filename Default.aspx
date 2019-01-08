@@ -1,4 +1,28 @@
-﻿<%@ Page Title="Gestione flotta provinciale" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true"  CodeFile="Default.aspx.cs" Inherits="_Default" %>
+﻿<%--
+ *
+ * 
+ * 
+ * 
+ * Copyright (C) 2017 Provincia Autonoma di Trento
+ *
+ * This file is part of <nome applicativo>.
+ * Pitre is free software: you can redistribute it and/or modify
+ * it under the terms of the LGPL as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pitre is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the LGPL v. 3
+ * along with Pitre. If not, see <https://www.gnu.org/licenses/lgpl.html>.
+ * 
+ */ --%>
+
+
+<%@ Page Title="Gestione flotta provinciale" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true"  CodeFile="Default.aspx.cs" Inherits="_Default" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <style>
@@ -101,8 +125,7 @@
                 <td class="auto-style1">
                     <asp:Button ID="cbAccedi" runat="server" Text="Accedi" Align="center" BackColor="#FFB94F" Width="202px" EnableTheming="True" OnClick="cbAccedi_Click" Height="30px" class="bradius"/>
                 </td>
-                <td >
-                 
+                <td >                 
                 </td>
                 <td class="auto-style44">&nbsp;</td>
             </tr>
@@ -130,7 +153,7 @@
                     <asp:Button ID="cbRegistrati" runat="server" Text="Registrati" Width="156px" border="2px" OnClick="cbRegistrati_Click" onmouseover="omiServizio(this);" onmouseout="omoServizio(this);" style="text-align: center;" />
                  </td>
                 <td class="centra">
-                    <a href = "data/Registrazione.pdf" target="_blank">Istruzioni</a>
+                    <a href = "data/20181204_Registrazione.pdf" target="_blank">Istruzioni</a>
                 </td>
                 <td class="auto-style44">&nbsp;</td>
             </tr>
@@ -160,7 +183,7 @@
 <p class="clb" style="margin: 0px auto; width: 1024px;">
 <asp:TextBox ID="sStato" runat="server" style="margin: 0px auto; text-align: center; border-width: 1px; border-radius: 3px; Border-Color: blue; width: 1024px; box-sizing: border-box;" ></asp:TextBox>
 </p>
-   <p style="clear: both; text-align: center; height: 35px;">&nbsp;Provincia Autonoma di Trento - SERV. SICUREZZA E GESTIONI COMUNI - GESTIONE AUTO DI SERVIZIO tel. 0461-496415 -&nbsp; ver. 1.7.0<br /><span style="font-size: smaller;">Sistema ottimizzato per l&#39;uso con browser: <font color="blue">google chrome e firefox</font></span></p>
+   <p style="clear: both; text-align: center; height: 35px;">&nbsp;Provincia Autonoma di Trento - SERV. SICUREZZA E GESTIONI COMUNI - GESTIONE AUTO DI SERVIZIO tel. 0461-496415 -&nbsp; ver. 1.7.6<br /><span style="font-size: smaller;">Sistema ottimizzato per l&#39;uso con browser: <font color="blue">google chrome e firefox</font></span></p>
 </div>
 <div style="margin: 0px auto; text-align: center;">
 <div id="idHelp" style="margin: 0px auto; border-color: darkblue; border:2px; border-width: 2px; width: 1200px; height: 86px; padding: 4px; box-sizing:padding-box; border-radius: 4px;"></div>     

@@ -1,4 +1,23 @@
-﻿using System;
+﻿ /*
+ * Copyright(C) 2017 Provincia Autonoma di Trento
+ *
+ * This file is part of<nome applicativo>.
+ * Pitre is free software: you can redistribute it and/or modify
+ * it under the terms of the LGPL as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pitre is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the LGPL v. 3
+ * along with Pitre.If not, see<https://www.gnu.org/licenses/lgpl.html>.
+ * 
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -83,7 +102,9 @@ public partial class importastrutture : System.Web.UI.Page
 
 	protected void bImport_Click(object sender, EventArgs e)
 	{
-		checkSession();		
+        DataTable esiste = null;
+        checkSession();
+        string ss = "";
 		msg = ""; s = "";
 		if (tProvider.Text.Trim().Length <= 3) s = "Problema con Provider; ";
 		if (tData.Text.Trim().Length <= 3) s += "Problema con Data source; ";
@@ -92,46 +113,46 @@ public partial class importastrutture : System.Web.UI.Page
 			tStato.Text = s + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
 		else
 		{
+            tStato.Text = "Inizio aggionramento.....";
 			string strconn = "Provider=" + tProvider.Text.Trim() + "Data source=" + tData.Text.Trim();
 			Olecnn = openaOleConn(strconn);
 			ds = getdata("select * from " + tTabella.Text.Trim(), ds, "origine", Olecnn);
-
 			idu = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-
 			if (ds != null && ds.Tables["origine"].Rows.Count > 0)
 			{
 				DataTable tbl = ds.Tables["origine"]; // ho la tabella strutture esterna....
 													  // ora devo importarla in una tabella temporanea locale... per poi poterla joinare o fare altro...
-				FBConn.EsegueCmd("delete from strutturetmp", out msg);
-				string s;
+				FBConn.EsegueCmd("delete from strutturetmp", out msg);				
 				//s = "insert into strutturetmp (codice, struttura, mail, dtla, dtc, chi) ";
 				//s += "select cod_s, XSTRUTTURA, e-mail, cast(now as timestamp), cast(now as timestamp), " + idu.ToString();
 				//FBConn.EsegueCmd(s, out msg);
 				for (int i = 0; i < tbl.Rows.Count; i++) // for each no ???
-				{					
-					s = "insert into strutturetmp (codice, struttura, mail, dtla, dtc, chi) values (";
+				{
+                    ss = (tbl.Rows[i]["cod_sup"] == DBNull.Value || tbl.Rows[i]["cod_sup"].ToString().Length <= 2) ? "\'\'" : "\'" + tbl.Rows[i]["cod_sup"].ToString() + "\'";
+                    s = "insert into strutturetmp (codice, struttura, mail, dtla, dtc, chi, dipendeda_ek) values (";
 					s += "\'" + utenti.virgolette(tbl.Rows[i]["cod_s"].ToString()) + "\', \'" + utenti.virgolette(tbl.Rows[i]["descrizione_s"].ToString()) + "\', ";
 					s += "\'" + utenti.virgolette(tbl.Rows[i]["e-mail"].ToString()) + "\', cast(\'"+DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\' as timestamp), cast(\'" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\' as timestamp), ";
-					s += idu.ToString() + ")";
+					s += idu.ToString() + ", " + ss + ")";
 					FBConn.EsegueCmd(s, out msg);
 					if (msg != "")
 					{
 						tStato.Text = "Attenzione... problema su " + msg;
 						return;
 					}
-					// ok aggiunta nuova struttura.... ora vedo se c'è già nel db.. se non c'è devo aggiungerla....
+					// ok aggiunta nuova struttura.... ora vedo se c'è già nel db.. se non c'è devo aggiungerla.... e se cè la aggiorno
 					s = "select * from strutture ";
 					s += "where codice=\'" + utenti.virgolette(tbl.Rows[i]["cod_s"].ToString()) + "\' and ";
 					s += "struttura = \'" + utenti.virgolette(tbl.Rows[i]["descrizione_s"].ToString()) + "\' ";
 					s += "order by codice, dtla desc ";
-					DataTable esiste;
+					
+                    if (esiste != null && esiste.Rows.Count > 0 ) esiste.Clear();
 					esiste = FBConn.getfromTbl(s, out msg);
 					if (esiste != null && esiste.Rows.Count <= 0) // nuova struttura
 					{
-						s = "insert into strutture (codice, struttura, mail, dtla, dtc, chi) values (";
+						s = "insert into strutture (codice, struttura, mail, dtla, dtc, chi, dipendeda_ek) values (";
 						s += "\'" + utenti.virgolette(tbl.Rows[i]["cod_s"].ToString()) + "\', \'" + utenti.virgolette(tbl.Rows[i]["descrizione_s"].ToString()) + "\', ";
 						s += "\'" + utenti.virgolette(tbl.Rows[i]["e-mail"].ToString()) + "\', cast(\'" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\' as timestamp), cast(\'" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\' as timestamp), ";
-						s += idu.ToString() + ")";
+                        s += idu.ToString() +  ", " + ss + ")";
 						FBConn.EsegueCmd(s, out msg);
 						if (msg != "")
 						{
@@ -143,13 +164,18 @@ public partial class importastrutture : System.Web.UI.Page
 					{
 						if (esiste != null && esiste.Rows.Count >= 1) // aggiorno eventuale mail
 						{
-							if (esiste.Rows[0]["mail"].ToString().Trim() != tbl.Rows[i]["e-mail"].ToString().Trim())
-							{
-								s = "update strutture set mail=\'" + tbl.Rows[i]["e-mail"].ToString().Trim() + "\',  dtla=cast(\'" + DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss") + "\' as timestamp), chi=\'" + idu.ToString() + "\'";
-								s += "where id=\'" + esiste.Rows[0]["id"].ToString() + "\'";
+							//if (esiste.Rows[0]["mail"].ToString().Trim() != tbl.Rows[i]["e-mail"].ToString().Trim())
+							//{
+                                s = "update strutture set ";
+                                s += "mail = \'" + tbl.Rows[i]["e-mail"].ToString().Trim() + "\', ";
+                                s += "dtla = cast(\'" + DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss") + "\' as timestamp), ";
+                                s += "chi =\'" + idu.ToString() + "\', ";
+                                s += "dipendeda_ek = " + ss + " ";
+                                s += "where id=\'" + esiste.Rows[0]["id"].ToString() + "\'";
 								FBConn.EsegueCmd(s, out msg);
-								if (msg != "") { tStato.Text = msg; return; }
-							}
+								if (msg != "")
+                                    { tStato.Text = msg; return; }
+							//}
 						}
 					}
 				}

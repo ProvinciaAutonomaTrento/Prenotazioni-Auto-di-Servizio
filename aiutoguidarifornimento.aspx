@@ -1,4 +1,25 @@
-﻿<%@ Page Title="Atrezzi operatore" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true" CodeFile="aiutoguidarifornimento.aspx.cs" Inherits="aiutoguidarifornimento" %>
+﻿<%--
+ /*
+ * Copyright(C) 2017 Provincia Autonoma di Trento
+ *
+ * This file is part of<nome applicativo>.
+ * Pitre is free software: you can redistribute it and/or modify
+ * it under the terms of the LGPL as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pitre is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the LGPL v. 3
+ * along with Pitre.If not, see<https://www.gnu.org/licenses/lgpl.html>.
+ * 
+ */ --%>
+
+
+<%@ Page Title="Atrezzi operatore" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true" CodeFile="aiutoguidarifornimento.aspx.cs" Inherits="aiutoguidarifornimento" %>
 
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" Runat="Server">
@@ -203,14 +224,14 @@
         <asp:Panel ID="pPrenota" runat="server" Visible ="true" CssClass="panelbox">
         <div class="menuprenota">
             <span style="font-size: 20px; background-color:burlywood;">La registrazione</span><br />
-            <span style="font-size: 15px;"><a href = "data/Registrazione.pdf" target="_blank">Registrazione nuovo utente</a></span><br />
+            <span style="font-size: 15px;"><a href = "data/20181204_Registrazione.pdf" target="_blank">Registrazione nuovo utente</a></span><br />
         </div>
         </asp:Panel>
 
         <asp:Panel ID="PRegistro" runat="server" Visible ="true" CssClass="panelbox">
         <div class="menuRegistro">
             <span style="font-size: 20px; background-color:burlywood;">Prenotare un autoveicolo</span><br />
-            <span style="font-size: 15px;"><a href = "data/Prenotazione.pdf" target="_blank">Prenotare un autoveicolo</a></span>
+            <span style="font-size: 15px;"><a href = "data/20181204_Prenotazione.pdf" target="_blank">Prenotare un autoveicolo</a></span>
         </div>
         </asp:Panel>
 

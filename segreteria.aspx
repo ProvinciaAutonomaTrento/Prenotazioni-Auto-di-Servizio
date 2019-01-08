@@ -1,4 +1,23 @@
-﻿<%@ Page Title="Atrezzi operatore" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true" CodeFile="segreteria.aspx.cs" Inherits="segreteria" %>
+﻿<%--
+ /*
+ * Copyright(C) 2017 Provincia Autonoma di Trento
+ *
+ * This file is part of<nome applicativo>.
+ * Pitre is free software: you can redistribute it and/or modify
+ * it under the terms of the LGPL as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pitre is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the LGPL v. 3
+ * along with Pitre.If not, see<https://www.gnu.org/licenses/lgpl.html>.
+ * 
+ */ --%>
+<%@ Page Title="Atrezzi operatore" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true" CodeFile="segreteria.aspx.cs" Inherits="segreteria" %>
 
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" Runat="Server">
@@ -396,7 +415,7 @@
         <asp:GridView ID="gwPrenotazioni" runat="server"  AutoPostBack="true" AutoGenerateColumns="false" Visible="false" AllowSorting="True"
             DataKeyNames="id" PageSize="999" width="1350" ShowHeaderWhenEmpty="True" HorizontalAlign="Center"
             style="text-align: left; float: left; " CellPadding="2" ForeColor="#333333" GridLines="None" Font-Size="Small"
-            OnSorting = "gwPrenotazioni_Sorting"  >
+            OnSorting = "gwPrenotazioni_Sorting" OnRowDataBound="gwPrenotazioni_RowDataBound" OnRowDeleting="gwPrenotazioni_RowDeleting"  >
            
             <SortedAscendingCellStyle BackColor="#E9E7E2" />
             <SortedAscendingHeaderStyle BorderStyle="Solid" BackColor="#506C8C" />
@@ -405,6 +424,11 @@
             <SortedDescendingHeaderStyle BackColor="#6F8DAE" />
             
             <Columns>
+            <asp:TemplateField HeaderText="Cancella" HeaderStyle-HorizontalAlign="left"><ItemStyle Width="70px" HorizontalAlign="left" Wrap="false"/>
+                <ItemTemplate>
+                    <asp:Button runat="Server" align="left" ButtonType="Button" SelectText="Cancella" ShowDeleteButton="True" Text="Cancella" CommandName="delete"></asp:Button>
+                </ItemTemplate>
+            </asp:TemplateField>
             <asp:BoundField DataField="partenza" headertext="Partenza" HeaderStyle-HorizontalAlign="center" sortexpression="partenza"><ItemStyle Width="140px" HorizontalAlign="left" Wrap="false" /></asp:Boundfield>
             <asp:BoundField DataField="arrivo" headertext="Arrivo" HeaderStyle-HorizontalAlign="center" sortexpression="arrivo"><ItemStyle Width="140px" HorizontalAlign="left" Wrap="false"/></asp:Boundfield>
             <asp:BoundField DataField="dove_comune" headertext="Destinazione" HeaderStyle-HorizontalAlign="left" sortexpression="dove_comune"><ItemStyle Width="160px" HorizontalAlign="left" /></asp:Boundfield>            
@@ -430,6 +454,7 @@
                 <asp:Label ID="Nome" runat="server" Text='<%# Bind("nome") %>'></asp:Label>
             </ItemTemplate>
             </asp:TemplateField>
+            <asp:Boundfield DataField="colore" headertext="Colore" HeaderStyle-HorizontalAlign="center"><ItemStyle Width="0px" HorizontalAlign="center" Wrap="false"/></asp:Boundfield> 
             <asp:BoundField DataField="id" visible="false"/>
             <asp:BoundField DataField="user_ek" visible="false"><ItemStyle Width="1px" Wrap="false" /></asp:Boundfield>
         </Columns>
@@ -448,6 +473,88 @@
         </div>
     </asp:Panel>
 </div>
- 
+<div>
+    <asp:Panel ID="pSeiSicuro" runat="server" Visible="true" style="float: left; margin: 0px auto;">
+   
+    <asp:Table ID="tRiepilogo" runat="server" Width="1024px" Visible ="false" HorizontalAlign="Center">
+        <asp:TableRow runat="server">
+            <asp:TableCell runat="server" Width="10px"></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+        </asp:TableRow>
+        <asp:TableRow runat="server" HorizontalAlign="Left">
+            <asp:TableCell runat="server" Width="10px"></asp:TableCell>
+            <asp:TableCell runat="server">Prenotante:</asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server"><asp:Label ID="lPrenotante" runat="server"></asp:Label></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+        </asp:TableRow>
+        <asp:TableRow runat="server" HorizontalAlign="Left">
+            <asp:TableCell runat="server" Width="10px"></asp:TableCell>
+            <asp:TableCell runat="server">Destinazione:</asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server"><asp:Label ID="lDestinazione" runat="server"></asp:Label></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+        </asp:TableRow>
+        <asp:TableRow runat="server" HorizontalAlign="Left">
+            <asp:TableCell runat="server" Width="10px"></asp:TableCell>
+            <asp:TableCell runat="server">partenza il giorno:</asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server"><asp:Label ID="lPartenza" runat="server"></asp:Label></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+        </asp:TableRow>
+        <asp:TableRow runat="server" HorizontalAlign="Left">
+            <asp:TableCell runat="server" Width="10px"></asp:TableCell>
+            <asp:TableCell runat="server">rientro il giorno:</asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server"><asp:Label ID="lRientro" runat="server"></asp:Label></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+        </asp:TableRow>
+        <asp:TableRow runat="server" HorizontalAlign="Left">
+            <asp:TableCell runat="server" Width="10px"></asp:TableCell>
+            <asp:TableCell runat="server">sede ritiro chiavi:</asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server"><asp:Label ID="lRitiro" runat="server"></asp:Label></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+        </asp:TableRow>
+        <asp:TableRow runat="server" HorizontalAlign="Left" Visible="false">
+            <asp:TableCell runat="server" Width="10px"></asp:TableCell>
+            <asp:TableCell runat="server">viaggiatori oltre al conducente:</asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server"><asp:Label ID="lPasseggeri" runat="server"></asp:Label></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+        </asp:TableRow>
+        <asp:TableRow runat="server" HorizontalAlign="Left" ID="TableRow1" Visible="true">
+            <asp:TableCell runat="server" Width="10px"></asp:TableCell>
+            <asp:TableCell runat="server">numero e targa:</asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server"><asp:Label ID="lNumero" runat="server"></asp:Label></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+        </asp:TableRow>
+        <asp:TableRow runat="server" HorizontalAlign="Left" ID="trVeicolo" Visible="false">
+            <asp:TableCell runat="server" Width="10px"></asp:TableCell>
+            <asp:TableCell runat="server">autoveicolo:</asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server"><asp:Label ID="lVeicolo" runat="server"></asp:Label></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+        </asp:TableRow>
+        <asp:TableRow runat="server" HorizontalAlign="Left" ID="TableRow2" Visible="true">
+            <asp:TableCell runat="server" Width="10px"></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+        </asp:TableRow>
+        <asp:TableRow runat="server" HorizontalAlign="Left" ID="TableRow3" Visible="true">
+            <asp:TableCell runat="server" Width="10px"></asp:TableCell>
+            <asp:TableCell runat="server" ColumnSpan="2" HorizontalAlign="Center"><asp:Button ID="cbcConferma" runat="server" Text="Conferma richiesta di cancellazione!" Visible="true" OnClick="cbcCancella_Click" /></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server" HorizontalAlign="Center"><asp:Button ID="cbHome" runat="server" Text="Ritorna a risultati" Visible="true" OnClick="cbhome_Click" /></asp:TableCell>
+        </asp:TableRow>
+    </asp:Table>
+    </asp:Panel>
+</div>
 </asp:Content>
 

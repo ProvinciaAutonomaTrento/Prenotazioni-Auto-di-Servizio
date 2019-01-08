@@ -1,4 +1,24 @@
-﻿<%@ Page Title="GFP: prenotazione" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true" CodeFile="pre.aspx.cs" Inherits="prenota" %>
+﻿<%--
+ * 
+ * Copyright (C) 2017 Provincia Autonoma di Trento
+ *
+ * This file is part of <nome applicativo>.
+ * Pitre is free software: you can redistribute it and/or modify
+ * it under the terms of the LGPL as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pitre is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the LGPL v. 3
+ * along with Pitre. If not, see <https://www.gnu.org/licenses/lgpl.html>.
+ * 
+ */ --%>
+
+<%@ Page Title="GFP: prenotazione" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true" CodeFile="pre.aspx.cs" Inherits="prenota" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" Runat="Server">
 <script>
   function preventBack(){window.history.forward();}
@@ -37,9 +57,9 @@
 <div class="news">NEWS: SONO STATE ATTIVATE LE COLONNINE DI RICARICA ELETTRICA NELLA ZONA DEL PRIMIERO. <a href = "data/stazioniricaricaprimiero.png" target="_blank">QUI L&#39;ELENCO DELLE STAZIONI</a ></div>
 <div style="width: 1024px;  margin: 0px auto; ">
 <div style="text-align: left; width: 100px; float: left;">
-    <a href = "data/Prenotazione.pdf" target="_blank">Istruzioni</a ></div>
+    <a href = "data/20181204_Prenotazione.pdf" target="_blank">Istruzioni</a ></div>
 <div class="topindex">
-    <a href = "http://pas.provincia.tn.it/aiutoguidarifornimento.aspx" target="_blank">Guide</a ></div>
+    <a href = "aiutoguidarifornimento.aspx" target="_blank">Guide</a ></div>
 <div class="topindex">
     <a href = "https://www.meteotrentino.it/#!/home" target="_blank">Meteo Trentino</a ></div>
 <div style="width: 150px; float: left;">
@@ -91,7 +111,8 @@
     <div style="width: 210px; vertical-align: Top; text-align: left; float: left; ">
         <asp:Calendar ID="CldInizio" runat="server" BackColor="White" BorderColor="#999999" Caption="Seleziona giorno inizio" CellPadding="4" DayNameFormat="Shortest" 
             Font-Names="Verdana" Font-Size="8pt" ForeColor="Black" Height="180px" Width="200px" 
-            OnSelectionChanged="CldInizio_SelectionChanged" OnDayRender="CldInizio_DayRender" ToolTip="Scegliere il giorno di partenza">
+            OnSelectionChanged="CldInizio_SelectionChanged" OnDayRender="CldInizio_DayRender"  OnVisibleMonthChanged="CldInizio_VisibleMonth"
+            ToolTip="Scegliere il giorno di partenza">
         <DayHeaderStyle BackColor="#CCCCCC" Font-Bold="True" Font-Size="7pt" />
         <NextPrevStyle VerticalAlign="Bottom" />
         <OtherMonthDayStyle ForeColor="#808080" />
@@ -111,7 +132,8 @@
     <div class="nomecampo" style="width: 90px;">Data fine</div>
     <div style="width: 210px; vertical-align: Top; text-align: left; float: left; ">
         <asp:Calendar ID="CldFine" runat="server" BackColor="White" BorderColor="#999999" Caption="Seleziona giorno fine" CellPadding="4" DayNameFormat="Shortest" 
-            Font-Names="Verdana" Font-Size="8pt" ForeColor="Black" Height="180px" Width="200px" OnSelectionChanged="CldFine_SelectionChanged" OnDayRender="CldFine_DayRender"
+            Font-Names="Verdana" Font-Size="8pt" ForeColor="Black" Height="180px" Width="200px" 
+            OnSelectionChanged="CldFine_SelectionChanged" OnDayRender="CldFine_DayRender" OnVisibleMonthChanged="CldInizio_VisibleMonth"
             ToolTip="Scegliere il giorno di arrivo">
         <DayHeaderStyle BackColor="#CCCCCC" Font-Bold="True" Font-Size="7pt" />
         <NextPrevStyle VerticalAlign="Bottom" />
@@ -151,32 +173,28 @@
 </div>
 <br />
 </div>
-<div style="clear: both; width: 1200px; margin: 0px auto;"></div>
-<div style="margin:0px auto; clear: both;"></div>
-<p></p>
-<div style="text-align: center; max-width=1124px">      
-</div>
-<div style="width: 1200px; margin: 0px auto; clear: both;">
-    <asp:Chart ID="cLibere" runat="server" Width="1200px" Height="210px" margin="0" BackColor="green" Palette="SemiTransparent" style="margin-bottom: 0px" AlternateText="Grafico disponibilità veicoli" 
-        ToolTip="Sulla ascissa troverete i giorni di riferimento, sulla ordinata, troverete il numero di veicoli disponibili per quel giorno, sui punti di ritiro di Trento o sulla sede selezionata">
-        <series>
-            <asp:Series Name="Prenotazioni" YValuesPerPoint="2">
-            </asp:Series>
-        </series>
-        <chartareas>
-            <asp:ChartArea BackColor="Bisque" BackGradientStyle="TopBottom" Name="ChartArea1">
-            </asp:ChartArea>                  
-        </chartareas>
-    </asp:Chart>
-    <div style="margin: 0px auto; text-align: center; clear: both;"><asp:Label ID="lnota" Visible="false" runat="server" Text="I numeri si riferiscono ai veicoli che non hanno in carico alcuna prenotazione. Sono esclusi i mezzi che hanno anche una sola prenoatzione, magari di un periodo limitato."></asp:Label></div>
+</asp:Panel>
+<div class="clb hrbianca"></div><br />
+<div style="width: 1024px; margin: 0px auto; text-align:center">
+    <asp:Button ID="bVerifica" runat="server" width="250px" Text="Verifica richiesta" onclick="bVerifica_Click"
+        ToolTip="Dopo aver inserito i dati della richiesta, viene verifacata la disponibilità di automezzi idonei per la missione"/>
+    <asp:Button ID="bModifica" runat="server" width="250px" Text="Modifica" OnClick="bModifica_Click" visible ="false"
+        ToolTip="Modificare i dati della richiesta"/>
+    <asp:Button ID="bElencoDisponibili" runat="server" Text="Elenco veicoli disponibili in altre sedi" onclick="bElencoDisponibili_Click" Visible="false" 
+        ToolTip="Verificare la disponibilità di veicoli idonei eventualmenmte disponibili in sedi diverse da quella selezionata"/>
+    <asp:CheckBox ID="cbInfo" runat="server" OnCheckedChanged="cbInfo_CheckedChanged" autopostback="true" Text="Visualizza infografica" 
+        style="align-content:flex-end; width: 244px;"
+        ToolTip=" Visualizza informazioni relative alla disponibilità dei veicoli per sede e alla distribuzione delle prenotazioni nel giorno della partenza."/>    
 </div>
 
-</asp:Panel>
 <div class="clb hrbianca"></div>
-<div style="width: 1024px; margin: 0px auto; text-align: center;">
-    <asp:Button ID="bVerifica" runat="server" Text="Verifica richiesta" onclick="bVerifica_Click" ToolTip="Dopo aver inserito i dati della richiesta, viene verifacata la disponibilità di automezzi idonei per la missione"/>
-    <asp:Button ID="bModifica" runat="server" Text="Modifica" OnClick="bModifica_Click" visible="false" ToolTip="Modificare i dati della richiesta"/>
-    <asp:Button ID="bElencoDisponibili" runat="server" Text="Elenco veicoli disponibili in altre sedi" onclick="bElencoDisponibili_Click" Visible="false" ToolTip="Verificare la disponibilità di veicoli idonei eventualmenmte disponibili in sedi diverse da quella selezionata"/>
+
+<asp:Panel ID="pFiltri" runat="server" Visible="true">
+<div id="filtro" style="clear: both; margin: 0px auto; text-align: center;">
+    <asp:CheckBox ID="cbFiltri" runat="server" autopostback="true" OnCheckedChanged="cbFiltriOnOff" Text="Togli filtri ?" Visible="false"/>
+</div>
+</asp:Panel>
+<asp:Panel id="pRiepilogo" runat="server" visible="false" style="width: 1024px; margin: 0px auto; text-align: center;">
     <br />
     <div class="hrbianca"></div>
     <asp:Table ID="tRiepilogo" runat="server" Width="1024px" Visible ="false" HorizontalAlign="Center">
@@ -237,15 +255,21 @@
             <asp:TableCell runat="server"></asp:TableCell>
         </asp:TableRow>
     </asp:Table>
-</div>
-<p></p>
-<asp:Panel ID="pFiltri" runat="server" Visible="true">
-<div id="filtro" style="clear: both; margin: 0px auto; text-align: center;">
-    <asp:CheckBox ID="cbFiltri" runat="server" autopostback="true" OnCheckedChanged="cbFiltriOnOff" Text="Togli filtri ?" Visible="false"/>
-</div>
 </asp:Panel>
 
-<div id="tdati" class="hrbianca" style="clear: both; width: 1024px; margin: 0px auto;">
+<asp:Panel ID="pAcconsento" runat="server" Visible="false" style="clear: both; width: 1200px; margin: 0px auto;">
+<div class="clb hrbianca"></div>
+<div style="width: 1024px; margin: 0px auto; text-align: center;">
+    Ho letto e accetto quanto disposto dal disciplinare d'uso dei veicoli messi a disposizione <u><strong>per motivi di servizio</strong></u>
+    <div style="width:20px; float:left;"><span> </span></div>
+    <asp:CheckBox ID="cbAcconsento" runat="server" tooltip="E' necessario aver letto il disciplinare e accettarne il contenuto"/>
+    <div style="width:20px; float:left;"><span>  </span></div>
+    <asp:Button ID="bConferma" runat="server" Text="Conferma richiesta" OnClick="bConferma_Click" Visible="false" tooltip="Per confermare la richiesta di prenotazione"/>
+    <div style="float: left; width:10px;"><span>  </span></div>
+</div>  
+</asp:Panel>
+<asp:Panel ID="pPrenota" runat="server" visible="false" style="clear: both; width: 1024px; margin: 0px auto;">
+    <div class="hrbianca"></div>
     <asp:GridView ID="GW" runat="server" AllowSorting="false" Width="1024px" AutoGenerateColumns="false" visible ="false" 
             DataKeyNames="id" PageSize="999" ShowHeaderWhenEmpty="True" Sortmode="Automatic" 
             style="text-align: left" CellPadding="2" ForeColor="#333333" GridLines="None" OnSelectedIndexChanged="GW_SelectedIndexChanged" Font-Size="Small" OnSorting="GW_Sorting" 
@@ -277,7 +301,10 @@
         <SortedDescendingCellStyle BackColor="#FFFDF8" />
         <SortedDescendingHeaderStyle BackColor="#6F8DAE" />
 </asp:GridView>
-<asp:GridView ID="GWDD" runat="server" AllowSorting="False" Width="1024px" visible ="false" AutoPostBack="true"
+</asp:Panel>
+<asp:Panel ID="pGWDD" runat="server" visible="false"  style="clear: both; width: 1024px; margin: 0px auto;">
+    <hr class="hrbianca" />
+    <asp:GridView ID="GWDD" runat="server" AllowSorting="False" Width="1024px"  AutoPostBack="true"
             DataKeyNames="id" PageSize="999" ShowHeaderWhenEmpty="True"
             style="text-align: left" CellPadding="2" ForeColor="#333333" GridLines="None" 
             OnSelectedIndexChanged="GWDD_SelectedIndexChanged" Font-Size="Small"
@@ -296,20 +323,21 @@
         <AlternatingRowStyle BackColor="White" ForeColor="#284775" /> 
         <SortedDescendingCellStyle BackColor="#FFFDF8" />
         <SortedDescendingHeaderStyle BackColor="#6F8DAE" />
-</asp:GridView>
-
-<asp:GridView ID="GWPRE" runat="server" AllowSorting="False" Width="1024px" visible ="false" AutoPostBack="true"
+    </asp:GridView>
+</asp:Panel>
+<asp:Panel ID="pGWPRE" runat="server" visible="false" style="clear: both; width: 1024px; margin: 0px auto;">
+<asp:GridView ID="GWPRE" runat="server" AllowSorting="False" Width="1024px" AutoPostBack="true"
             DataKeyNames="id" PageSize="999" ShowHeaderWhenEmpty="True" AutoGenerateColumns="false"
             style="text-align: left" CellPadding="2" ForeColor="#333333" GridLines="None"  Font-Size="Small"
             OnSelectedIndexChanged="GWPRE_SelectedIndexChanged" OnRowDeleting="GWPRE_RowDeleting" OnRowDataBound="GWPRE_RowDataBound"
             tooltip="E' possibile cancellare/modificare la missione. Si raccomanda di cancellare tempestivamente le misisoni annullate e di modificare l'orario di rientro se avvenuto con largo anticipo">
         <Columns>
-            <asp:TemplateField HeaderText="Modifica" HeaderStyle-HorizontalAlign="left"><ItemStyle Width="70px" HorizontalAlign="left" Wrap="false"/>
+            <asp:TemplateField HeaderText="MODIFICA" HeaderStyle-HorizontalAlign="left"><ItemStyle Width="70px" HorizontalAlign="left" Wrap="false"/>
                 <ItemTemplate>
                     <asp:Button runat="Server" align="left" ButtonType="Button" SelectText="Modifica" ShowSelectButton="True" Text="Modifica" CommandName="select"></asp:Button>
                 </ItemTemplate>
             </asp:TemplateField> 
-            <asp:TemplateField HeaderText="Cancella" HeaderStyle-HorizontalAlign="left"><ItemStyle Width="70px" HorizontalAlign="left" Wrap="false"/>
+            <asp:TemplateField HeaderText="CANCELLA" HeaderStyle-HorizontalAlign="left"><ItemStyle Width="70px" HorizontalAlign="left" Wrap="false"/>
                 <ItemTemplate>
                     <asp:Button runat="Server" align="left" ButtonType="Button" SelectText="Cancella" ShowDeleteButton="True" Text="Cancella" CommandName="delete"></asp:Button>
                 </ItemTemplate>
@@ -335,7 +363,10 @@
         <SortedDescendingCellStyle BackColor="#FFFDF8" />
         <SortedDescendingHeaderStyle BackColor="#6F8DAE" />
 </asp:GridView>
-    <asp:GridView ID="GWMezziDisponibili" runat="server" AllowSorting="false" Width="1024px" AutoGenerateColumns="false" visible ="false" 
+</asp:Panel>
+<asp:Panel ID="pMezziDisponibili" runat="server" visible = "false" style="clear: both; width: 1024px; margin: 0px auto;">
+    <div class="hrbianca"></div>
+    <asp:GridView ID="GWMezziDisponibili" runat="server" AllowSorting="false" Width="1024px" AutoGenerateColumns="false"  
             DataKeyNames="id" PageSize="999" ShowHeaderWhenEmpty="True" Sortmode="Automatic" 
             style="text-align: left" CellPadding="2" ForeColor="#333333" GridLines="None" OnSelectedIndexChanged="GW_SelectedIndexChanged" 
             OnSorting="GW_Sorting" 
@@ -370,8 +401,9 @@
         <SortedDescendingCellStyle BackColor="#FFFDF8" />
         <SortedDescendingHeaderStyle BackColor="#6F8DAE" />
 </asp:GridView>
-<asp:Panel ID="pConferma" runat="server" Visible="false">
-<div style="border-color: blue; border-radius: 6px; border: 3px; width: 1024px;">
+</asp:Panel>
+<asp:Panel ID="pConferma" runat="server" Visible="false" style="border-color: blue; border-radius: 6px; border: 3px; width: 1024px;margin: 0px auto;text-align:center;">
+    <div class="hrbianca"></div>
     <asp:Table ID="tConfermaCancellazione" runat="server" Width="1024px" HorizontalAlign="Center" CssClass="auto-style1">
         <asp:TableRow runat="server">
             <asp:TableCell runat="server" Width="10px"></asp:TableCell>
@@ -416,31 +448,46 @@
             <asp:TableCell runat="server"></asp:TableCell>
         </asp:TableRow>
         <asp:TableRow runat="server" HorizontalAlign="Left" ID="TableRow3" Visible="true">
-            <asp:TableCell runat="server" Width="10px"></asp:TableCell>
+            <asp:TableCell runat="server" Width="10px"><br /><br /></asp:TableCell>
             <asp:TableCell runat="server" ColumnSpan="3" HorizontalAlign="Center"><asp:Button ID="cbcConferma" runat="server" Text="Conferma richiesta di cancellazione!" 
                 Visible="true" OnClick="cbcCancella_Click" ToolTip="Confermare la richiesta di cancellazione della prenotazione"/></asp:TableCell>
             <asp:TableCell runat="server"></asp:TableCell>
         </asp:TableRow>
     </asp:Table>       
+</asp:Panel>
+<div class="clb hrbianca"></div>
+<p class="clb" style="margin: 0px auto; width: 1200px; height: 25px;clear:both;">
+<asp:Label ID="sStato" runat="server" style="margin: 0px auto; text-align: center; border-width: 2px; border-radius: 3px; Border-Color: blue; box-sizing: border-box;" Height="64px" wrap="true" Width="1200px"></asp:Label>
+</p>
+<asp:Panel id="pChart" runat="Server" visible ="false" style="width: 1200px; margin: 0px auto; align-content:center; text-align:center; clear: both;">
+<div style="width: 1200px; margin: 0px auto; align-content:center; text-align:center; clear: both;">
+    <asp:Chart ID="cLibere" runat="server" Width="1200px" Height="210px" margin="0" BackColor="green" Palette="SemiTransparent" style="margin-bottom: 0px" AlternateText="Grafico disponibilità veicoli" 
+        ToolTip="Sulla ascissa troverete i giorni di riferimento, sulla ordinata, troverete il numero di veicoli disponibili per quel giorno, sui punti di ritiro di Trento o sulla sede selezionata">
+        <series>
+            <asp:Series Name="Prenotazioni" YValuesPerPoint="2">
+            </asp:Series>
+        </series>
+        <chartareas>
+            <asp:ChartArea BackColor="Bisque" BackGradientStyle="TopBottom" Name="ChartArea1">
+            </asp:ChartArea>                  
+        </chartareas>
+    </asp:Chart>
+    <div style="margin: 0px auto; text-align: center; clear: both;">
+    <asp:Label ID="lnota" Visible="false" runat="server" Text="I numeri si riferiscono ai veicoli che non hanno in carico alcuna prenotazione. Sono esclusi i mezzi che hanno anche una sola prenoatzione, magari di un periodo limitato."></asp:Label></div>
 </div>
 </asp:Panel>
-
-<p></p>
-<div class="clb hrbianca"></div>
-<asp:Panel ID="pAcconsento" runat="server" Visible="false">
-<div style="width: 1024px; margin: 0px auto; text-align: center;">
-    Ho letto e accetto quanto disposto dal disciplinare d'uso dei veicoli messi a disposizione <u><strong>per motivi di servizio</strong></u>
-    <div style="width:20px; float:left;"><span> </span></div>
-    <asp:CheckBox ID="cbAcconsento" runat="server" tooltip="E' necessario aver letto il disciplinare e accettarne il contenuto"/>
-    <div style="width:20px; float:left;"><span>  </span></div>
-    <asp:Button ID="bConferma" runat="server" Text="Conferma richiesta" OnClick="bConferma_Click" Visible="false" tooltip="Per confermare la richiesta di prenotazione"/>
-    <div style="float: left; width:10px;"><span>  </span></div>
-</div>  
+<br />
+<asp:Panel ID="PBuchi" runat="server" Visible ="false" style="margin: 0px auto; width: 1200px;">
+    <asp:label runat="server">Rappresentazione oraria delle prenotazioni nel </asp:label><asp:Label runat="server"> <b>giorno di inizio missione.</b> Di colore bianco le ore non prenotate.</asp:Label>
+    <asp:Table ID="tHeader" runat="server" AutoPostBack="true" BackColor="White" ClientIDMode="Predictable" ForeColor="Black" Width="1200px" Font-Size="Small" HorizontalAlign="NotSet">
+        <asp:TableRow runat="server">
+        </asp:TableRow>
+    </asp:Table>    
+    <asp:Table ID="tcale" runat="server" AutoPostBack="true" BackColor="White" ClientIDMode="Predictable" ForeColor="Black" Width="1200px" Font-Size="Small" HorizontalAlign="NotSet">
+        <asp:TableRow runat="server">
+        </asp:TableRow>
+    </asp:Table>
 </asp:Panel>
-<div class="clb hrbianca"></div>
-<p class="clb" style="margin: 0px auto; width: 1024px; height: 40px;">
-<asp:Label ID="sStato" runat="server" style="margin: 0px auto; text-align: center; border-width: 2px; border-radius: 3px; Border-Color: blue; box-sizing: border-box;" Height="64px" wrap="true" Width="1018px"></asp:Label>
-</p>
     <p class="clb" style="margin: 0px auto; width: 1024px; height: 40px;">
         &nbsp;</p>
     <p class="clb" style="margin: 0px auto; width: 1024px; height: 40px;">
@@ -448,7 +495,6 @@
 
 <asp:HiddenField ID="tDIS" runat="server" /><asp:HiddenField ID="COMODO1" runat="server" /><asp:HiddenField ID="COMODO" runat="server" />
 
-</div>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA2hJKSHX_tREFJCyXca2toiuOdegB6euk"></script>
 <script type="text/javascript">
 function inizializza() {

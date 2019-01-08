@@ -1,4 +1,24 @@
-﻿<%@ Page Title="Atrezzi operatore" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true" CodeFile="editpre.aspx.cs" Inherits="editpre" %>
+﻿<%--
+ /*
+ * Copyright(C) 2017 Provincia Autonoma di Trento
+ *
+ * This file is part of<nome applicativo>.
+ * Pitre is free software: you can redistribute it and/or modify
+ * it under the terms of the LGPL as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pitre is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the LGPL v. 3
+ * along with Pitre.If not, see<https://www.gnu.org/licenses/lgpl.html>.
+ * 
+ */ --%>
+
+<%@ Page Title="Atrezzi operatore" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true" CodeFile="editpre.aspx.cs" Inherits="editpre" %>
 
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" Runat="Server">
@@ -396,8 +416,16 @@
             <SortedDescendingHeaderStyle BackColor="#6F8DAE" />
             
             <Columns>
-            <asp:CommandField ButtonType="Button" SelectText="Modifica" ShowSelectButton="True"><ItemStyle Width="75px" /></asp:CommandField>
-            <asp:CommandField ButtonType="Button" SelectText="Cancella" ShowDeleteButton="True"><ItemStyle Width="75px" /></asp:CommandField>
+            <asp:TemplateField HeaderText="Modifica" HeaderStyle-HorizontalAlign="left"><ItemStyle Width="75px" HorizontalAlign="left" Wrap="false"/>
+                <ItemTemplate>
+                    <asp:Button runat="Server" align="left" ButtonType="Button" SelectText="Modifica" ShowSelectButton="True" Text="Modifica" CommandName="select"></asp:Button>
+                </ItemTemplate>
+            </asp:TemplateField> 
+            <asp:TemplateField HeaderText="Cancella" HeaderStyle-HorizontalAlign="left"><ItemStyle Width="75px" HorizontalAlign="left" Wrap="false"/>
+                <ItemTemplate>
+                    <asp:Button runat="Server" align="left" ButtonType="Button" SelectText="Cancella" ShowDeleteButton="True" Text="Cancella" CommandName="delete"></asp:Button>
+                </ItemTemplate>
+            </asp:TemplateField>
             <asp:BoundField DataField="partenza" headertext="Partenza" HeaderStyle-HorizontalAlign="center" sortexpression="partenza"><ItemStyle Width="140px" HorizontalAlign="left" Wrap="false" /></asp:Boundfield>
             <asp:BoundField DataField="arrivo" headertext="Arrivo" HeaderStyle-HorizontalAlign="center" sortexpression="arrivo"><ItemStyle Width="140px" HorizontalAlign="left" Wrap="false"/></asp:Boundfield>
             <asp:BoundField DataField="dove_comune" headertext="Destinazione" HeaderStyle-HorizontalAlign="left" sortexpression="dove_comune"><ItemStyle Width="160px" HorizontalAlign="left" /></asp:Boundfield>            

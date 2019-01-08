@@ -1,10 +1,35 @@
-﻿using System;
+﻿/**
+ *
+ * 
+ * 
+ * 
+ * Copyright (C) 2017 Provincia Autonoma di Trento
+ *
+ * This file is part of <nome applicativo>.
+ * Pitre is free software: you can redistribute it and/or modify
+ * it under the terms of the LGPL as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pitre is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the LGPL v. 3
+ * along with Pitre. If not, see <https://www.gnu.org/licenses/lgpl.html>.
+ * 
+ */
+
+using System;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data;
 using System.Text;
+using System.Drawing;
 using System.Data.SqlClient;
 using System.ComponentModel;
+using System.Collections;
 
 public partial class prenota : System.Web.UI.Page
 {
@@ -133,6 +158,7 @@ public partial class prenota : System.Web.UI.Page
 							{
 								s = ". Prenotazione per conto di " + altro.nome.ToUpper() + " " + altro.cognome.ToUpper();
 								LBenvenuto.Text = " Benvenuto/a " + utenti.nome + " " + utenti.cognome + s;
+                                sStato.Text = "ATTENZIONE: stai prenotando per conto di un altro utente!";
 							}
 						}
 					}
@@ -143,14 +169,11 @@ public partial class prenota : System.Web.UI.Page
 				ddlProvincia.SelectedValue = "22"; // se non è una modifica... preseleziono quella di Trento
 				ddlProvincia_SelectedIndexChanged(this, e = new EventArgs());
 			}
-			initChartLibere(utenti.iduser.ToString());
-			ddlProvincia.Focus();
+            //initChartLibere(utenti.iduser.ToString());
+            //BuchiShow(idu.ToString());
 		}
-		else
-		{
-			idu = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-			initChartLibere(idu.ToString());
-		}
+        cbInfo.Visible = true;
+        ddlProvincia.Focus();
 	}
 	private bool checkSession()
 	{
@@ -218,8 +241,8 @@ public partial class prenota : System.Web.UI.Page
 			msg = "";
 			ds.Clear();
 			string s;
-			s = "select a.*, b.comune from ubicazione as a left join comuni as b on a.comune_ek=b.comune_k where a.abilitato > 0 order by b.comune, a.ubicazione";
-			s = "SELECT distinct  ub.id, co.comune, ub.via, ub.civico, ub.ubicazione ";
+			//s = "select a.*, b.comune from ubicazione as a left join comuni as b on a.comune_ek=b.comune_k where a.abilitato > 0 order by b.comune, a.ubicazione";
+			s = "SELECT distinct ub.id, co.comune, ub.via, ub.civico, ub.ubicazione ";
 			s += "FROM UTENTE_GRUPPO ug ";
 			s += "left join utenti as u on u.id=ug.utente_ek ";
 			s += "left join gruppi as gr on gr.gruppo_ek=ug.gruppo_EK ";
@@ -286,8 +309,8 @@ public partial class prenota : System.Web.UI.Page
 	protected void ddlRitiro_SelectedIndexChanged(object sender, EventArgs e)
 	{
 		idu = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-		initChartLibere(idu.ToString());
-	}
+        cbInfo_CheckedChanged(this, new EventArgs());
+    }
 
 	protected void ddlStato_SelectedIndexChanged(object sender, EventArgs e)
 	{
@@ -349,16 +372,23 @@ public partial class prenota : System.Web.UI.Page
 		if (bVerifica.Text != "Verifica richiesta")
 		{
 			bVerifica.Text = "Verifica richiesta";
-			GWDD.Visible = false;
-			GWPRE.Visible = false;
+			pGWDD.Visible = false;
+			pGWPRE.Visible = false;
 			PImput.Visible = true; //initChartLibere();
 			sStato.Text = "";
             pConferma.Visible = false;
+            cbInfo_CheckedChanged(this, new EventArgs());
 			return;
 		}
 
-		checkSession();  // ripristino idu, aid e carico dati user
+        pConferma.Visible = false; // non serve....        
 
+        if (!checkSession())  // ripristino idu, aid e carico dati user
+        {
+            s = "Sessione scaduta. Prego ricollegarsi.";
+            ShowPopUpMsg(s);
+            Response.Redirect("default.aspx?session=0");
+        }
 		// devo effetuare le verifiche sui dati di input
 		int ko = 0;
 		s = "";
@@ -367,13 +397,13 @@ public partial class prenota : System.Web.UI.Page
 		if (CldInizio.SelectedDate.ToString() == "01/01/0001 00:00:00") { s += "Data inizio; "; ko++; }
 		if (CldFine.SelectedDate.ToString() == "01/01/0001 00:00:00") { s += "Data fine; "; ko++; }
 		if (ddlRitiro.SelectedValue == "") { s += "Punto di ritiro; "; ko++; }
-		if (ko > 0) { sStato.Text = "ATTENZIONE: completare la richiesta inserendo : " + s; return; }
+		if (ko > 0) { Stato("ATTENZIONE: completare la richiesta inserendo : " + s, Color.Red); return; }
 		string destinazione, prelievo;
 		destinazione = ddlComune.SelectedItem.Text;
 		prelievo = ddlRitiro.SelectedItem.Text;
 		int.TryParse(Session["strapotere"].ToString(), out strapotere);
 		if (strapotere < 50 && destinazione.Trim() == "Trento" && prelievo.IndexOf("Trento") == 0)
-		{ sStato.Text = "ATTENZIONE: si prega di utilizzare i mezzi pubblici o di contattare il settore car sharing al numero " + Session["assistenza"].ToString(); return; }
+		{   Stato("ATTENZIONE: si prega di utilizzare i mezzi pubblici o di contattare il settore car sharing al numero " + Session["assistenza"].ToString(), Color.Red); return; }
 		PImput.Visible = false;
 		dtinizio = new DateTime(CldInizio.SelectedDate.Year, CldInizio.SelectedDate.Month, CldInizio.SelectedDate.Day, ddlOrainizio.SelectedIndex, ddlMininizio.SelectedIndex * 5, 0);
 		dtfine = new DateTime(CldFine.SelectedDate.Year, CldFine.SelectedDate.Month, CldFine.SelectedDate.Day, ddlOrafine.SelectedIndex, ddlMinfine.SelectedIndex * 5, 0);
@@ -398,21 +428,27 @@ public partial class prenota : System.Web.UI.Page
 		lRitiro.Text = string.Format("{0}", ddlRitiro.SelectedItem.Text);
 		lPasseggeri.Text = string.Format("{0}", ddlPasseggeri.SelectedIndex);
 		lVeicolo.Text = "";// non ancora determinato... string.Format("{0} - {1}  targa {2}{3}", pre.marca, pre.modello, pre.targa, pre.blackbox == "1" ? ", black box a bordo" : "");
-		tRiepilogo.Visible = true;
+
+        PBuchi.Visible = false;
+        pChart.Visible = false;
+        cbInfo.Visible = false;
+
+        pRiepilogo.Visible = true;
+        tRiepilogo.Visible = true;
 		if (dtinizio.AddMinutes(59) > dtfine)
 		{
-			sStato.Text = "ATTENZIONE: data e ora partenza o data e ora di arrivo errate! Durata della prenotazione minima è pari a 60 minuti.";
+            Stato("ATTENZIONE: data e ora partenza o data e ora di arrivo errate! Durata della prenotazione minima è pari a 60 minuti.", Color.Red);
 			lPartenza.ForeColor = System.Drawing.Color.Red;
 			lRientro.ForeColor = System.Drawing.Color.Red;
 			bModifica.Visible = true;
-			bVerifica.Visible = false;
+			bVerifica.Visible = false;            
 			//tRiepilogo.Visible = false;
 			return;
 		}
 		// contrllo dei tre giorni (non serve interrogazione)
 		if (utenti.potere < 50 && dtinizio.AddDays(3) < dtfine) // vedere se conviene per ore o giornate
 		{
-			sStato.Text = "ATTENZIONE: data e ora partenza o data e ora di arrivo errate! Durata massima della prenotazione 3 giorni.";
+            Stato("ATTENZIONE: data e ora partenza o data e ora di arrivo errate! Durata massima della prenotazione 3 giorni.", Color.Red);
 			lPartenza.ForeColor = System.Drawing.Color.Red;
 			lRientro.ForeColor = System.Drawing.Color.Red;
 			bModifica.Visible = true;
@@ -424,6 +460,7 @@ public partial class prenota : System.Web.UI.Page
 		sStato.Text = "";
 		bVerifica.Focus();
 		pAcconsento.Visible = true;
+        
 		msg = "";
 
 		/*  0) carico tutti i dati utili nella classe prenota
@@ -457,7 +494,7 @@ public partial class prenota : System.Web.UI.Page
 		ds = pre.Sovrapposte(aid, dtinizio, dtfine, out msg);
 		if (msg != "")
 		{
-			sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
+            Stato("ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Red);
 			return;
 		}
 		int contiene = 0;
@@ -475,14 +512,14 @@ public partial class prenota : System.Web.UI.Page
 			// nella tabella visualizzo l'elenco delle prenotazioni sovrapposte
 			if (utenti.potere < 50)
 			{
-				sStato.Text = "Impossibile assegnare ad un utente più macchine nello stesso periodo. Controllare le prenotazioni in \'Mie prenotazioni\' o contattare l'assistenza al numero: " + (string)Session["assistenza"].ToString();
+                Stato("Impossibile assegnare ad un utente più macchine nello stesso periodo. Controllare le prenotazioni in \'Mie prenotazioni\' o contattare l'assistenza al numero: " + (string)Session["assistenza"].ToString(), Color.Red);
 				pAcconsento.Visible = false;
-				GWDD.Visible = false;
+                pGWDD.Visible = false;
 				RiempiMissioni(ds.Tables["sovrapposte"], -1);
 				return;
 			}
 			else
-				sStato.Text = "ATTENZIONE: PIù MACCHINE PRENOTATE NELLO STESSO PERIODO!";
+                Stato("ATTENZIONE: PIù MACCHINE PRENOTATE NELLO STESSO PERIODO!", Color.Red);
 		}
 
 		if (utenti.potere >= 50)
@@ -498,8 +535,8 @@ public partial class prenota : System.Web.UI.Page
 			tbl = pre.cercaid(idp, out msg); pre.id = idp;
 			if (msg.Trim().Length == 0 && tbl != null && tbl.Rows.Count > 0)
 			{
-				pre.refresh(tbl);
-				sStato.Text = "ATTENZIONE: CANCELLARE IL VECCHIO FOGLIO DI PRENOTAZIONE! LA PRENOTAZIONE E' STATA CAMBIATA!";
+                pre.refresh(tbl);
+                Stato("ATTENZIONE: CANCELLARE IL VECCHIO FOGLIO DI PRENOTAZIONE! LA PRENOTAZIONE E' STATA CAMBIATA!", Color.Blue);
 			}
 		}
         // se è una modifica ho già caricato tutti i dati della prenotazione e ora modifico solo i dati che provengono dalla maschera
@@ -518,16 +555,18 @@ public partial class prenota : System.Web.UI.Page
 		// vedo se ci sono altre missioni in quel comune
 		ds.Clear();
 		GW.DataBind();
-		GW.Visible = false;
+		pPrenota.Visible = false;
 
-		// 3) trovo l'elenco delle vetture disponibili con criterio (non già prenotate nelle date scelte)
-		if (utenti.potere < 50)
+        cbInfo.Visible = false;
+
+        // 3) trovo l'elenco delle vetture disponibili con criterio (non già prenotate nelle date scelte)
+        if (utenti.potere < 50)
 		{
             // qui posso controllare il totale prenotazioni attive, dato che non ho ancora scelto la macchina
 			tbl = pre.PrenotazioniInDateDifferenti(utenti.iduser.ToString(), out msg);
 			if (msg.Trim() != "")
 			{
-				sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
+				Stato("ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Red);
 				return;
 			}
 			if (tbl.Rows.Count > 0 && idp.Trim() == "") // non è una modifica)
@@ -536,10 +575,9 @@ public partial class prenota : System.Web.UI.Page
                 int.TryParse(tbl.Rows[0]["max_prenotazioni"].ToString(), out mp);
                 if (tbl.Rows.Count >= mp)
                 {
-                    pConferma.Visible = false;
                     pAcconsento.Visible = false;
-                    tRiepilogo.Visible = false;
-                    sStato.Text = "ATTENZIONE: a causa del limitato numero di automezzi disponibili, ogni utente non può avere più di " + mp.ToString() + " prenotazioni attive! Contattare l'assistenza al numero " + (string)Session["assistenza"];
+                    tRiepilogo.Visible = true;
+                    Stato("ATTENZIONE: a causa del limitato numero di automezzi disponibili, ogni utente non può avere più di " + mp.ToString() + " prenotazioni attive! Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Blue);
                     return;
                 }
             }
@@ -548,10 +586,11 @@ public partial class prenota : System.Web.UI.Page
 		bElencoDisponibili.Visible = true;
         ds.Clear();
 		GWDD.DataBind();
-		GWDD.Visible = false;
+		pGWDD.Visible = false;
 		pAcconsento.Visible = false;
 		cbAcconsento.Visible = false;
-		bConferma.Visible = false;
+        pRiepilogo.Visible = true;
+        bConferma.Visible = false;
 		msg = "";
 		//bElencoDisponibili.Visible = false;
 
@@ -562,7 +601,7 @@ public partial class prenota : System.Web.UI.Page
 			ds = pre.mezzidisponibili(utenti.iduser.ToString(), pre.ubicazione_ek.Trim(), pre.dove_comune, pre.dove_prov_ek, pre.partenza, pre.arrivo, pre.dislivello, filtri, out msg);
 			if (msg != "")
 			{
-				sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
+                Stato("ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Red);
 				return;
 			}
 			if (ds != null && ds.Tables["disponibili"].Rows.Count > 0)   // elenco dei mezzi disponibili
@@ -571,10 +610,11 @@ public partial class prenota : System.Web.UI.Page
 				//cbFiltri.Text = (cbFiltri.Text == "Applica filtri ?") ? "Togli filtri ?" : "Applica filtri ?";
 				// ordinato per ordine e per comune
 				RiempiGrid(ds.Tables["disponibili"]); // vetture disponibili
+                Stato("Seleziona uno fra i gli automezzi disponibili, facendo attenzione alle caratteristiche del mezzo... (Tipo di alimentazione, classificazione, cambio... ", Color.Blue);
 			}
 			else
 			{
-				sStato.Text = "Non ci sono mezzi disponibili con le caratteristiche richieste! Modificare le caratteristiche o contattare il call center al n. 0461.496415.";
+                Stato("Non ci sono mezzi disponibili con le caratteristiche richieste! Modificare le caratteristiche o contattare il call center al n. 0461.496415.", Color.Blue);
 				PImput.Visible = true; //initChartLibere();
 				return;
 			}
@@ -588,11 +628,11 @@ public partial class prenota : System.Web.UI.Page
 				lVeicolo.Text = string.Format("{0} - {1} numero {2}", pre.marca, pre.modello, pre.numero);
 				trVeicolo.Visible = true;
 				CarPooling(contiene);
-				sStato.Text = "ATTENZIONE: CANCELLARE IL FOGLIO DI PRENOTAZIONE PRECEDENTE. STA PER ESSERE CAMBIATA LA PRENOTAZIONE! CONTROLLARE IN 'LE MIE PRENOTAZIONI' DOPO LA MODIFICA.";
+                Stato("ATTENZIONE: CANCELLARE IL FOGLIO DI PRENOTAZIONE PRECEDENTE. STA PER ESSERE CAMBIATA LA PRENOTAZIONE! CONTROLLARE IN 'LE MIE PRENOTAZIONI' DOPO LA MODIFICA.", Color.Blue);
 			}
 			else
 			{
-				sStato.Text = "Non ci sono mezzi disponibili con le caratteristiche richieste! Modificare le caratteristiche o contattare il call center al n. 0461.496415.";
+                Stato("Non ci sono mezzi disponibili con le caratteristiche richieste! Modificare le caratteristiche o contattare il call center al n. 0461.496415.", Color.Blue);
 				PImput.Visible = true; // initChartLibere();
 				return;
 			}
@@ -639,11 +679,12 @@ public partial class prenota : System.Web.UI.Page
                 }
             }
             GW.Visible = true;
-            if ( ok > 1 ) sStato.Text = "ATTENZIONE: i mezzi appartenenti alle stesse flotte, hanno colori uguali. Si prega di dare la preferenza ai veicoli appartenenti alla propria flotta, presenti nella parte alta dell'elenco!";
+            pPrenota.Visible = true;
+            if ( ok > 1 ) Stato("ATTENZIONE: i mezzi appartenenti alle stesse flotte, hanno colori uguali. Si prega di dare la preferenza ai veicoli appartenenti alla propria flotta, presenti nella parte alta dell'elenco!", Color.Blue);
         }
 		catch (Exception ex)
 		{
-			sStato.Text = "Riscontrato errore durante la ricerca dei mezzi disponibili. Errore: " + ex.ToString() + " Avvertire l'amministratore al n. " + (string)Session["assistenza"].ToString();
+            Stato("Riscontrato errore durante la ricerca dei mezzi disponibili. Errore: " + ex.ToString() + " Avvertire l'amministratore al n. " + (string)Session["assistenza"].ToString(), Color.Red);
 		}
 	}
 
@@ -659,7 +700,7 @@ public partial class prenota : System.Web.UI.Page
 			}
 			GWMezziDisponibili.DataSource = gwds;
 			GWMezziDisponibili.DataBind();
-            GWMezziDisponibili.Columns[7].ShowHeader = false; // nascondo la colonna flotta_ek... dopo aver associato la tabella ai dati 
+            GWMezziDisponibili.Columns[7].ShowHeader = false; // nascondo la colonna flotta_ek... dopo aver associato la tabella ai dati pMezziDisponibili.Visible
             GWMezziDisponibili.Columns[7].ItemStyle.Width = 0;
             GWMezziDisponibili.Columns[7].ItemStyle.Wrap = false;
             GWMezziDisponibili.Columns[7].Visible = false;
@@ -680,11 +721,11 @@ public partial class prenota : System.Web.UI.Page
                     if (argb != argbold) { argbold = argb; ok++; }
                 }
             }
-            GWMezziDisponibili.Visible = true;
+            pMezziDisponibili.Visible = true;
 		}
 		catch (Exception ex)
 		{
-			sStato.Text = "Riscontrato errore durante la ricerca dei mezzi disponibili in ogni sede. Errore: " + ex.ToString() + " Avvertire l'amministratore al n. " + (string)Session["assistenza"].ToString();
+            Stato("Riscontrato errore durante la ricerca dei mezzi disponibili in ogni sede. Errore: " + ex.ToString() + " Avvertire l'amministratore al n. " + (string)Session["assistenza"].ToString(), Color.Red);
 		}
 	}
 
@@ -703,11 +744,11 @@ public partial class prenota : System.Web.UI.Page
 			if (GWDD.Columns.Count > 0) GWDD.Columns[0].Visible = comando == 0 ? true : false; // mon serve +
 			if (GWDD.Columns.Count > 1) GWDD.Columns[1].Visible = comando == 1 ? true : false;
 			//GWDD.Sort(GWDD.Columns[2].HeaderText, SortDirection.Descending);
-			GWDD.Visible = true;
+			pGWDD.Visible = true;
 		}
 		catch (Exception ex)
 		{
-			sStato.Text = "Riscontrato errore durante la ricerca dei mezzi disponibili/missioni. Errore: " + ex.ToString() + " Avvertire l'amministratore al n. " + (string)Session["assistenza"].ToString();
+            Stato("Riscontrato errore durante la ricerca dei mezzi disponibili/missioni. Errore: " + ex.ToString() + " Avvertire l'amministratore al n. " + (string)Session["assistenza"].ToString(), Color.Red);
 		}
 	}
 	public void GestioneMissioni(DataTable gwpre, int comando) // missioni
@@ -748,15 +789,16 @@ public partial class prenota : System.Web.UI.Page
                     if (argb != argbold) { argbold = argb; ok++; }
                 }
             }
-            GWPRE.Visible = true;
+            pGWPRE.Visible = true;
 		}
 		catch (Exception ex)
 		{
-			sStato.Text = "Riscontrato errore durante la ricerca dei mezzi disponibili/missioni. Errore: " + ex.ToString() + " Avvertire l'amministratore al n. " + (string)Session["assistenza"].ToString();
+            Stato("Riscontrato errore durante la ricerca dei mezzi disponibili/missioni. Errore: " + ex.ToString() + " Avvertire l'amministratore al n. " + (string)Session["assistenza"].ToString(), Color.Red);
 		}
 	}
 	protected void GW_SelectedIndexChanged(object sender, EventArgs e) // selezione veicoli disponibili
 	{
+        cbInfo.Visible = false;
 		int riga = GW.SelectedIndex;
 		GridViewRow row = GW.SelectedRow;
 		pre.mezzo_ek = GW.SelectedDataKey.Value.ToString();
@@ -774,7 +816,7 @@ public partial class prenota : System.Web.UI.Page
         tbl = pre.PrenotazioniPerMezzoDiUnGruppo(codiceutente, pre.mezzo_ek, codflotta, out msg);
         if (msg.Trim() != "")
         {
-            sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
+            Stato("ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Red);
             return;
         }
         if (tbl != null && tbl.Rows.Count > 0 && idp.Trim() == "") // non è una modifica)
@@ -783,10 +825,9 @@ public partial class prenota : System.Web.UI.Page
             int.TryParse(tbl.Rows[0]["max_prenotazioni"].ToString(), out mp); // una riga qualsiasi... in quanto per mi serve il numero max di prenotazioni della flotta
             if (tbl.Rows.Count >= mp && (aid == ""))
             {
-                pConferma.Visible = false;
                 pAcconsento.Visible = false;
-                tRiepilogo.Visible = false;
-                sStato.Text = "ATTENZIONE: non si possono avere più di " + mp + " prenotazioni attive per la flotta " + tbl.Rows[0]["etichetta"].ToString() + "! Contattare l'assistenza al numero " + (string)Session["assistenza"];
+                tRiepilogo.Visible = true;
+                Stato("ATTENZIONE: non si possono avere più di " + mp + " prenotazioni attive per la flotta " + tbl.Rows[0]["etichetta"].ToString() + "! Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Blue);
                 return;
             }
             //Session.Add("flotta_ek", tbl.Rows[0]["id"].ToString()); // aggiungo id flotta
@@ -824,31 +865,35 @@ public partial class prenota : System.Web.UI.Page
 		// ora devo vedere se ci sono altri che vanno nella stessa destinazione
 		ds.Clear();
 		GWDD.DataBind();
-		GWDD.Visible = false;
+		pGWDD.Visible = false;
 		pre.dove_comune = ddlComune.SelectedItem.ToString();
 		pre.partenza = new DateTime(CldInizio.SelectedDate.Year, CldInizio.SelectedDate.Month, CldInizio.SelectedDate.Day, ddlOrainizio.SelectedIndex, ddlMininizio.SelectedIndex * 5, 0);
 
 		ds = pre.CercaDD((pre.dove_comune), pre.partenza, out msg);
 		if (msg != "")
 		{
-			sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
+            Stato("ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Red);
 			return;
 		}
 		cbFiltri.Visible = false;
-		GW.Visible = false;
+		pPrenota.Visible = false;
+        pRiepilogo.Visible = true;
 		pAcconsento.Visible = true;
-		cbAcconsento.Visible = true;
-		bConferma.Visible = true;
+        pConferma.Visible = false;
+        bConferma.Visible = true;
+        cbAcconsento.Visible = true;
+        PBuchi.Visible = false;
+		
 		if (ds != null && ds.Tables["prenotazioniDD"].Rows.Count > contiene)  // ci sono già prenotazioni per quel comune con quella data 
 		{
 			RiempiMissioni(ds.Tables["prenotazioniDD"], 0);
-			sStato.Text = "ATTENZIONE: ci sono altri colleghi che andranno ad " + pre.dove_comune + " il giorno " + pre.partenza.ToString("dd-MM-yyyy") + ". Aggregati selezionando la missione oppure procedi con una tua, cliccando su conferma!";
+            Stato("ATTENZIONE: ci sono altri colleghi che andranno ad " + pre.dove_comune + " il giorno " + pre.partenza.ToString("dd-MM-yyyy") + ". Aggregati selezionando la missione oppure procedi con una tua, cliccando su conferma!", Color.Blue);
 			return;
 		}
 		else
 		{
 			sStato.Text = "Confermare la richiesta di prenotazione per " + ((ddlStato.SelectedItem.Text == "Estero" && tComuneEstero.Text != "") ? tComuneEstero.Text : ddlComune.SelectedItem.ToString() != "" ? ddlComune.SelectedItem.ToString() : "") + "!";
-			GWDD.Visible = false;
+			pGWDD.Visible = false;
 		}
 	}
 
@@ -861,12 +906,12 @@ public partial class prenota : System.Web.UI.Page
 		idu = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
 		//Int32.TryParse(Session["iduser"].ToString(), out idu);
 		if (pre.Aggrega(row.Cells[9].Text, idu) != 1)
-			sStato.Text = "Non è stato possibile esegure l'aggragazione! Errore durante l\'update! Contattare il servizio assistenza al n. " + (string)Session["assistenza"].ToString();
+            Stato("Non è stato possibile esegure l'aggragazione! Errore durante l\'update! Contattare il servizio assistenza al n. " + (string)Session["assistenza"].ToString(), Color.Red);
 		else
 		{
-			sStato.Text = "Per attivare il car pooling contatta il driver " + row.Cells[8].Text + ", " + row.Cells[7].Text + " al numero " + row.Cells[5].Text;
+            Stato("Per attivare il car pooling contatta il driver " + row.Cells[8].Text + ", " + row.Cells[7].Text + " al numero " + row.Cells[5].Text, Color.Blue);
 			// ora devo esplicitare i dati della prenotazione, eventualmente notificando entrambe gli interessati
-			GWDD.Visible = false;
+			pGWDD.Visible = false;
 			//s = "select * from prenotazioni where user_ek=\'" + pre.user_ek + "\' and cast(partenza as timestamp)=cast(\'" + pre.partenza.ToString("yyyy/MM/dd HH:mm:ss") + "\' as timestamp)";
 			s = "Contatta il driver " + row.Cells[8].Text + " " + row.Cells[7].Text + " al numero " + row.Cells[5].Text + " per verificare la possibilità di car pooliing.";
 			ShowPopUpMsg(s);
@@ -889,18 +934,19 @@ public partial class prenota : System.Web.UI.Page
 		if (dt < DateTime.Now)
 		{
 			Session.Add("idp", ""); // meglio azzerare
-			sStato.Text = "ATTENZIONE: non è possibile modificare una prenotazione con data di fine, già trascorsa!";
+            Stato("ATTENZIONE: non è possibile modificare una prenotazione con data di fine, già trascorsa!", Color.Blue);
 			return;
 		}
         if (GWPRE.SelectedDataKey.Value != null)
             Session.Add("idp", GWPRE.SelectedDataKey.Value); // memorizzo come variabile di sessione
-		GWPRE.Visible = false;
-		pConferma.Visible = false;
+		pGWPRE.Visible = false;
+		pConferma.Visible = true;
 		PImput.Visible = true; //initChartLibere();
 		Response.Redirect("pre.aspx?idp=" + Session["idp"].ToString());
 	}
 	protected void GWPRE_RowDeleting(object sender, GridViewDeleteEventArgs e)
 	{
+        cbInfo.Visible = false;
         lccDestinazione.Text = GWPRE.Rows[e.RowIndex].Cells[5].Text;
 		lccPartenza.Text = GWPRE.Rows[e.RowIndex].Cells[2].Text;
 		//pre.id = GWPRE.SelectedDataKey[0].ToString(); // preservo id prenotazione da cancellare
@@ -914,11 +960,11 @@ public partial class prenota : System.Web.UI.Page
         //if (GWPRE.SelectedDataKey.Value != null)
 
         Session.Add("idprenotazione", pre.id);
-		//pre.id = GW.SelectedDataKey.Value.ToString();
-
-		GWPRE.Visible = false; // elenco prenotazioni e visualizza pannello di conferma
+        //pre.id = GW.SelectedDataKey.Value.ToString();
+        PBuchi.Visible = false;
+		pGWPRE.Visible = false; // elenco prenotazioni e visualizza pannello di conferma
 		pConferma.Visible = true;
-		sStato.Text = "ATTENZIONE: dopo la conferma della cancellazione, assicurarsi di eliminare il foglio di prenotazione in qualunque formato posseduto! (mail, cartaceo, file)";
+        Stato("ATTENZIONE: dopo la conferma della cancellazione, assicurarsi di eliminare il foglio di prenotazione in qualunque formato posseduto! (mail, cartaceo, file)", Color.Blue);
 	}
 
 	protected void GWPRE_RowDataBound(object sender, GridViewRowEventArgs e)
@@ -949,18 +995,18 @@ public partial class prenota : System.Web.UI.Page
 		int rr = pre.Cancella(pre.id, idu.ToString(), out msg);
 		if (rr < 0)
 		{
-			sStato.Text = "Cancellazione non riusicta. Contattare il servizio assistenza al n. " + Session["assistenza"].ToString();
+            Stato("Cancellazione non riusicta. Contattare il servizio assistenza al n. " + Session["assistenza"].ToString(), Color.Red);
 			pConferma.Visible = false;
 			return;
 		};
 		if (rr == 0)
 		{
-			sStato.Text = "Non è possibile cancellare le richieste con data e ora di inizio già passate!";
+			Stato("Non è possibile cancellare le richieste con data e ora di inizio già passate!", Color.Blue);
 			pConferma.Visible = false;
 			return;
 		}
-		GWPRE.Visible = false;
-		sStato.Text = "Cancellazione avvenuta! ATTENZIONE: provvedere a eliminare il foglio di prenotazione in qualunque formato posseduto! (mail, cartaceo, file)";
+		pGWPRE.Visible = false;
+        Stato("Cancellazione avvenuta! ATTENZIONE: provvedere a eliminare il foglio di prenotazione in qualunque formato posseduto! (mail, cartaceo, file)", Color.Blue);
 		//sStato.Text = "Cancellazione avvenuta!";
 		pConferma.Visible = false;
 		bmieprenotazioni_Click(this, e = new EventArgs());
@@ -993,7 +1039,7 @@ public partial class prenota : System.Web.UI.Page
         if (!checkSession()) Response.Redirect("default.aspx"); // ripristino idu e aid e utenti e verifico sessione ancora attiva
         if (!cbAcconsento.Checked)
 		{
-			sStato.Text = "E' necessario leggere il disciplinare d'uso dei veicoli....Prima di procedere.";
+            Stato("E' necessario leggere il disciplinare d'uso dei veicoli....Prima di procedere.", Color.Blue);
 			ShowPopUpMsg(sStato.Text);
 			return;
 		}
@@ -1051,7 +1097,7 @@ public partial class prenota : System.Web.UI.Page
 			FBConn.openaFBConn(out msg);
 			if (msg.Length >= 1)
 			{
-				sStato.Text = "ATTENZIONE: connessione interrotta durante la modifica della prenotazione. Contattare il servizio assistenza al n. " + Session["assistenza"].ToString();
+                Stato("ATTENZIONE: connessione interrotta durante la modifica della prenotazione. Contattare il servizio assistenza al n. " + Session["assistenza"].ToString(), Color.Red);
 				return;
 			}
 			//idp = (Request.QueryString["idp"] != null && Request.QueryString["idp"].ToString().Trim() != "") ? Request.QueryString["idp"].ToString().Trim() : idp;
@@ -1060,7 +1106,7 @@ public partial class prenota : System.Web.UI.Page
 			//public int Modifica(string userid, string prenotazioneid)
 			if (pre.Modifica(aid, idp) != 1)
 			{
-				sStato.Text = "ATTENZIONE: si è verificato un\'errore durante l\'inserimento della prenotazione. Contattare l'assistenza al numero " + (string)Session["assistenza"];
+                Stato("ATTENZIONE: si è verificato un\'errore durante l\'inserimento della prenotazione. Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Red);
 				return;
 			}
 		}
@@ -1070,7 +1116,7 @@ public partial class prenota : System.Web.UI.Page
 			{
 				if (pre.Inserisci(aid.ToString()) != 1)
 				{
-					sStato.Text = "ATTENZIONE: si è verificato un\'errore durante l\'inserimento della prenotazione. Contattare l'assistenza al numero " + (string)Session["assistenza"];
+                    Stato("ATTENZIONE: si è verificato un\'errore durante l\'inserimento della prenotazione. Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Red);
 					return;
 				}
 				// ora devo controllare se qualcuno ha già prenotato nel frattempo che questo dormiva sulla pagina web
@@ -1098,11 +1144,11 @@ public partial class prenota : System.Web.UI.Page
 							rr = pre.Cancella(pre.id, idu.ToString(), out msg);
 							if (rr < 0)
 							{
-								sStato.Text = "Cancellazione non riusicta. Contattare il servizio assistenza al n. " + Session["assistenza"].ToString();
+                                Stato("Cancellazione non riusicta. Contattare il servizio assistenza al n. " + Session["assistenza"].ToString(), Color.Red);
 								pConferma.Visible = false;
 								return;
 							};
-							sStato.Text = "Spiacente.... l'automezzo che hai cercato di prenotare è appena stato prenotato da un'altro utente! Rifai la ricerca.... e prenota un'altro automezzo!";
+                            Stato("Spiacente.... l'automezzo che hai cercato di prenotare è appena stato prenotato da un'altro utente! Rifai la ricerca.... e prenota un'altro automezzo!", Color.Blue);
 							ShowPopUpMsg(sStato.Text);
 							return;
 						}
@@ -1130,21 +1176,23 @@ public partial class prenota : System.Web.UI.Page
 	protected void bModifica_Click(object sender, EventArgs e)
 	{
 		bElencoDisponibili.Visible = false;
-		GWMezziDisponibili.Visible = false;
+		pMezziDisponibili.Visible = false;
+        cbInfo.Visible = true;
 		PImput.Visible = true;	//initChartLibere();
 		bModifica.Visible = false;
 		bVerifica.Visible = true;
 		tRiepilogo.Visible = false;
 		lPartenza.ForeColor = System.Drawing.Color.Black;
 		lRientro.ForeColor = System.Drawing.Color.Black;
-		GW.Visible = false;
-		GWDD.Visible = false;
+		pPrenota.Visible = false;
+		pGWDD.Visible = false;
 		bConferma.Visible = false;
 		cbAcconsento.Visible = false;
 		pAcconsento.Visible = false;
 		sStato.Text = "";
 		cbFiltri.Visible = false;
-	}
+        cbInfo_CheckedChanged(this, new EventArgs());
+    }
 
 	protected void cbFiltriOnOff(object sender, EventArgs e)
 	{
@@ -1155,10 +1203,15 @@ public partial class prenota : System.Web.UI.Page
 
 	protected void bmieprenotazioni_Click(object sender, EventArgs e)
 	{
-		PImput.Visible = false;
+        pGWDD.Visible = false;
+        pGWPRE.Visible = false;
+        PImput.Visible = false;
+        PBuchi.Visible = false;
+        pChart.Visible = false;
 		tRiepilogo.Visible = false;
-		GW.Visible = false;
-		GWMezziDisponibili.Visible = false;
+        cbInfo.Visible = false;
+		pPrenota.Visible = false;
+		pMezziDisponibili.Visible = false;
 		bElencoDisponibili.Visible = false;
 		pre.user_ek = Session["iduser"] != null ? Session["iduser"].ToString() : "";
 		if (pre.user_ek == "")
@@ -1177,7 +1230,7 @@ public partial class prenota : System.Web.UI.Page
 		ds = pre.Sovrapposte(pre.user_ek, dti, DateTime.Now.AddDays(365), out msg); // mi ritorna le prenotazione sino a 365gg fa
 		if (msg != "")
 		{
-			sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
+            Stato("ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Red);
 			return;
 		}
 
@@ -1191,9 +1244,9 @@ public partial class prenota : System.Web.UI.Page
 		}
 		else
 		{
-			sStato.Text = "Non ci sono prenotazioni. Eventualmente contattare l'assistenza al numero: " + (string)Session["assistenza"].ToString();
+            Stato("Non ci sono prenotazioni. Eventualmente contattare l'assistenza al numero: " + (string)Session["assistenza"].ToString(), Color.Blue);
 			pAcconsento.Visible = false;
-			GWPRE.Visible = false;
+			pGWPRE.Visible = false;
 			return;
 		}
 	}
@@ -1214,8 +1267,10 @@ public partial class prenota : System.Web.UI.Page
 			CldFine.SelectedDate = CldInizio.SelectedDate;
 			//CldFine.SelectedDayStyle.BackColor = System.Drawing.Color.FromName("Blue");
 		}
-		//initChartLibere();
-	}
+        idu = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
+        //if (bInfo.Text == "Nascondi info grafica")
+        cbInfo_CheckedChanged(this, new EventArgs());
+    }
 
 	protected void CldFine_SelectionChanged(object sender, EventArgs e)
 	{
@@ -1236,8 +1291,8 @@ public partial class prenota : System.Web.UI.Page
 		}
 		CldInizio.VisibleDate = CldInizio.SelectedDate;
 		CldFine.VisibleDate = CldFine.SelectedDate;
-		//initChartLibere();
-	}
+        cbInfo_CheckedChanged(this, new EventArgs());
+    }
 
 	protected void ConfirmMsg(string msg)
 	{
@@ -1262,7 +1317,7 @@ public partial class prenota : System.Web.UI.Page
 		FBConn.openaFBConn(out msg);
 		if (msg.Length >= 1)
 		{
-			sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
+            Stato("ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Red);
 			FBConn.closeaFBConn(out msg);
 		}
 		else
@@ -1272,7 +1327,7 @@ public partial class prenota : System.Web.UI.Page
 			tbl = FBConn.getfromTbl(s, out msg);
 			FBConn.closeaFBConn(out msg);
 			if (msg.Length >= 1)
-				sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
+                Stato("ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Red);
 			else
 			{
 				if (tbl.Rows.Count > 0)
@@ -1289,7 +1344,7 @@ public partial class prenota : System.Web.UI.Page
 						ddl.Items.Insert(0, new ListItem("", ""));
 				}
 				else
-					sStato.Text = "ATTENZIONE: si è verificato un\'errore: non ci sono occorrenze nella tabella " + tab.ToUpper() + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
+                    Stato("ATTENZIONE: si è verificato un\'errore: non ci sono occorrenze nella tabella " + tab.ToUpper() + ". Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Red);
 			}
 		}
 	}
@@ -1301,8 +1356,8 @@ public partial class prenota : System.Web.UI.Page
 
 	protected void Nuova_Click(object sender, EventArgs e)
 	{
-		GWMezziDisponibili.Visible = false;
-		GW.Visible = false;
+		pMezziDisponibili.Visible = false;
+		pPrenota.Visible = false;
 		idp = "";
 		Session.Add("idp", "");
 		Response.Redirect("pre.aspx");
@@ -1332,13 +1387,18 @@ public partial class prenota : System.Web.UI.Page
 
 	protected void bElencoDisponibili_Click(object sender, EventArgs e)
 	{
-		checkSession();
-		GW.Visible = false; // tolgo la visualizzazione di quelle già ricercate
+        PBuchi.Visible = false;
+        pGWDD.Visible = false;
+        checkSession();
+		pPrenota.Visible = false; // tolgo la visualizzazione di quelle già ricercate
 		ds.Clear();
 		GWMezziDisponibili.DataBind();
 		pAcconsento.Visible = false;
 		cbAcconsento.Visible = false;
 		bConferma.Visible = false;
+        pConferma.Visible = false;
+        cbInfo.Visible = false;
+
 		msg = "";
 		dtinizio = new DateTime(CldInizio.SelectedDate.Year, CldInizio.SelectedDate.Month, CldInizio.SelectedDate.Day, ddlOrainizio.SelectedIndex, ddlMininizio.SelectedIndex * 5, 0);
 		dtfine = new DateTime(CldFine.SelectedDate.Year, CldFine.SelectedDate.Month, CldFine.SelectedDate.Day, ddlOrafine.SelectedIndex, ddlMinfine.SelectedIndex * 5, 0);
@@ -1351,7 +1411,7 @@ public partial class prenota : System.Web.UI.Page
 		ds = pre.mezzidisponibili(pre.user_ek, null, "", "", pre.partenza, pre.arrivo, "", false, out msg);
 		if (msg != "")
 		{
-			sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
+            Stato("ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Red);
 			return;
 		}
 		if (ds != null && ds.Tables["disponibili"].Rows.Count > 0)   // elenco dei mezzi disponibili
@@ -1359,12 +1419,14 @@ public partial class prenota : System.Web.UI.Page
 			//cbFiltri.Checked = false;
 			//cbFiltri.Text = (cbFiltri.Text == "Applica filtri ?") ? "Togli filtri ?" : "Applica filtri ?";
 			RiempiDisponibili(ds.Tables["disponibili"]); // vetture disponibili
-			sStato.Text = "Trovati " + ds.Tables["disponibili"].Rows.Count.ToString() + " mezzi. Cliccare sul pulsante Modifica e scegliere l'eventuale altro punto di ritiro.";
-		}
+            Stato("Trovati " + ds.Tables["disponibili"].Rows.Count.ToString() + " mezzi. Cliccare sul pulsante Modifica e scegliere l'eventuale altro punto di ritiro.", Color.Blue);
+            pChart.Visible = false;
+        }
 		else
 		{
-			sStato.Text = "Non ci sono mezzi disponibili con le caratteristiche richieste! Modificare le caratteristiche o contattare il call center al n. 0461.496415.";
-			PImput.Visible = true; //initChartLibere();
+            Stato("Non ci sono mezzi disponibili con le caratteristiche richieste! Modificare le caratteristiche o contattare il call center al n. 0461.496415.", Color.Blue);
+            PImput.Visible = true; //initChartLibere();
+            pChart.Visible = false;
 		}
 	}
 
@@ -1452,7 +1514,7 @@ public partial class prenota : System.Web.UI.Page
 			//cLibere.DataSource = tbl;
 			cLibere.Titles.Add(titolo).Font = new System.Drawing.Font("Thaoma", 14);
 			cLibere.BackColor = System.Drawing.Color.White; // colore dello sfondo lo sfondo del grafico
-			cLibere.ChartAreas["ChartArea1"].AxisY.Title = "veicoli senza preno_\ntazione per data";
+			cLibere.ChartAreas["ChartArea1"].AxisY.Title = "veicoli disponibili\nper data";
 			cLibere.ChartAreas["ChartArea1"].AxisY.TitleFont = new System.Drawing.Font("Thaoma", 14);
 			cLibere.ChartAreas["ChartArea1"].AxisY.TextOrientation = System.Web.UI.DataVisualization.Charting.TextOrientation.Rotated270;
 			cLibere.ChartAreas["ChartArea1"].AxisX.LabelStyle.Font = new System.Drawing.Font("Thaoma", 7);
@@ -1483,17 +1545,201 @@ public partial class prenota : System.Web.UI.Page
 			cLibere.ChartAreas[0].AxisX.LabelStyle.Font = new System.Drawing.Font("Thaoma", giorni > 28 ? 7 : 8);
 			cLibere.ChartAreas[0].AxisX.TextOrientation = System.Web.UI.DataVisualization.Charting.TextOrientation.Rotated270;
 			cLibere.Series["Prenotazionixdata"].Points.DataBindXY(dates, numero);
+            pChart.Visible = true;
 		}
 		else
 		{
-			cLibere.Visible = false; lnota.Visible = false;
-			sStato.Text = "Non risultano automezzi presenti in questa sede!";
+			pChart.Visible = false;
+            Stato("Tutti gli automezzi della sede sono liberi!", Color.Black);
 		}
 	}
 
-	public string Right(string str, int length)
+    protected void Stato(string msg, Color c)
+    {
+        if (c == null) c = Color.Black;
+        sStato.ForeColor = c;
+        sStato.Text = msg;
+    }
+
+    public string Right(string str, int length)
 	{
 		str = (str ?? string.Empty);
 		return (str.Length >= length) ? str.Substring(str.Length - length, length) : str;
 	}
+
+    public void BuchiShow(string utente)
+    {
+        //tHeader.Visible = false;
+        //tcale.Visible = false;
+
+        DateTime dada = DateTime.Now, ada = DateTime.Now;
+
+        string sede = ddlRitiro.SelectedIndex <= 0 ? "nei punti di ritiro di Trento" : "in " + (ddlRitiro.SelectedItem.ToString());
+        string sql, filtro, titolo;
+        string formatodatasql = "yyyy/MM/dd";
+        if (CldInizio.SelectedDate.ToString() != "01/01/0001 00:00:00") dada = CldInizio.SelectedDate.Date;
+        if (CldFine.SelectedDate.ToString() != "01/01/0001 00:00:00") ada = CldFine.SelectedDate.Date;
+        string dadata = dada.ToString(formatodatasql), adata = ada.ToString(formatodatasql);
+        sql = "select p.partenza, p.arrivo, u.ubicazione, mo.modello, me.numero ";
+        sql += "from prenotazioni as p ";
+        sql += "left join UBICAZIONE as u on u.id = p.ubicazione_ek ";
+        sql += "left join COMUNI as c on c.comune_k=u.comune_ek ";
+        sql += "left join mezzi as me on me.id=p.mezzo_ek ";
+        sql += "left join modello as mo on mo.id = me.modello_ek ";
+        sql += "where p.mezzo_ek in ( ";
+        sql += "select gg.auto_ek ";
+        sql += "from gruppi as gg ";
+        sql += "where gg.gruppo_ek in ( ";
+        sql += "select distinct g.gruppo_ek ";
+        sql += "from UTENTE_GRUPPO as ug ";
+        sql += "left join gruppi as g on g.gruppo_ek = ug.gruppo_ek ";
+        sql += "left join ETICHETTA_GRUPPO as e on e.id = ug.gruppo_ek ";
+        sql += "where ug.utente_ek = " + utente + ")) and ( ";
+        sql += "cast(p.partenza as date) between cast(\'" + dadata + "\' as date) and cast(\'" + dadata + "\' as date) or ";
+        sql += "cast(p.arrivo as date) between cast(\'" + dadata + "\' as date) and cast(\'" + dadata + "\' as date) or ";
+        sql += "cast(p.partenza as date) <= cast(\'" + dadata + "\' as date) and cast(p.arrivo as date) >= cast(\'" + dadata + "\' as date) ) ";
+        sql += "and " + (ddlRitiro.SelectedIndex <= 0 ? " c.comune = \'Trento\' and p.ubicazione_ek != 0 " : "p.ubicazione_ek=" + ddlRitiro.SelectedValue.ToString()) + " ";
+        sql += "order by u.ubicazione, me.numero ";
+
+        tbl.Clear();
+        tbl.Columns.Clear();
+        tbl = FBConn.getfromTbl(sql, out msg);
+        
+        if (tbl.Rows.Count > 0 )
+        {
+            tHeader.Rows.Clear();
+            tcale.Rows.Clear();
+
+            // definisco uno stile da applicare alla cella
+            TableItemStyle SData = new TableItemStyle();
+            TableItemStyle SSede = new TableItemStyle();
+            TableItemStyle SRighe = new TableItemStyle();
+            TableItemStyle SPieno = new TableItemStyle();
+            TableItemStyle SVuoto = new TableItemStyle();
+
+            SData.HorizontalAlign = HorizontalAlign.Center;
+            SData.VerticalAlign = VerticalAlign.Middle;
+            SData.Width = Unit.Pixel(300);
+            SData.BorderWidth = Unit.Pixel(1);
+            SData.Height = Unit.Pixel(17);
+            SData.BorderStyle = BorderStyle.Solid;
+            SData.BackColor = System.Drawing.Color.Orange;
+            SData.Font.Bold = false;
+
+            SSede.HorizontalAlign = HorizontalAlign.Left;
+            SSede.VerticalAlign = VerticalAlign.Middle;
+            SSede.Width = Unit.Pixel(300);
+            SSede.BorderWidth = Unit.Pixel(1);
+            SSede.Height = Unit.Pixel(17);
+            SSede.BorderStyle = BorderStyle.Solid;
+            SSede.Wrap = false;
+            //tcStyle.BorderColor = Color.Transparent;
+            
+            SRighe.HorizontalAlign = HorizontalAlign.Center;
+            SRighe.VerticalAlign = VerticalAlign.Middle;
+            SRighe.Width = Unit.Pixel(70);
+            SRighe.BorderWidth = Unit.Pixel(1);
+            SRighe.Font.Bold = false;
+
+            SPieno.HorizontalAlign = HorizontalAlign.Left;
+            SPieno.VerticalAlign = VerticalAlign.Top;
+            SPieno.Width = Unit.Pixel(35);
+            SPieno.BackColor = System.Drawing.Color.LightBlue;
+            
+            SVuoto.HorizontalAlign = HorizontalAlign.Left;
+            SVuoto.VerticalAlign = VerticalAlign.Top;
+            SVuoto.Width = Unit.Pixel(35);
+            SVuoto.BackColor = System.Drawing.Color.White;
+
+            TableRow tRow;
+            TableRow tRowSede;
+            TableCell tcSede;
+            TableCell tc, tc1;
+
+            // aggiungo riga intestazione
+            tRowSede = new TableRow();  // creo nuova riga
+            tcSede = new TableCell();
+            tcSede.ApplyStyle(SData);   // applico stile di sede 
+            tcSede.Text = "Prenotazioni del " + dada.ToString("dd:MM:yyyy");
+            tRowSede.Cells.Add(tcSede); // aggiungo dati prima colonna
+            for (int o = 7; o < 19; o++)
+            {
+                tc = new TableCell();
+                tc.ApplyStyle(SRighe);  // applico stile di righe
+                s = o.ToString().PadLeft(2, '0') + ":00-";
+                s += (o + 1).ToString().PadLeft(2, '0') + ":00";
+                tc.Text = s;
+                tRowSede.Cells.Add(tc);
+            }
+            tHeader.Rows.Add(tRowSede);   // aggiungo la riga tRowSede alla tabella dopo averla creata con tutte le 1 +  13 celle
+
+            DateTime ora;
+            if (CldInizio.SelectedDate != null) ora = CldInizio.SelectedDate; else ora = DateTime.Now;
+            int r = 0; DateTime dt, inizio = dada, fine = ada;
+            while (tbl.Rows.Count > 0 && r < tbl.Rows.Count)
+            {
+                tRow = new TableRow();      // creo nuova riga                
+                tcSede = new TableCell();
+                tcSede.ApplyStyle(SSede);   // applico stile di sede
+                tcSede.Text = (tbl.Rows[r]["ubicazione"].ToString() + " " + tbl.Rows[r]["modello"].ToString()).PadRight(40, ' ').Substring(0,40) + " (" + tbl.Rows[r]["numero"].ToString()+")";  
+                tRow.Cells.Add(tcSede);
+                bool blu = false; // se è vero siamo nel periodo
+                for (int o = 7; o < 19; o++)
+                {
+                    for (int m = 0; m <= 30; m += 30)
+                    {
+                        tc = new TableCell(); //tc1 = new TableCell();
+                        //tc.ApplyStyle(SVuoto); tc1.ApplyStyle(SRighe); // applico stile di righe
+                        if (DateTime.TryParse(tbl.Rows[r]["partenza"].ToString(), out dt)) dada = dt;
+                        if (DateTime.TryParse(tbl.Rows[r]["arrivo"].ToString(), out dt)) ada = dt;
+                        blu = false;
+                        if ((dada.Year < inizio.Year || dada.Month < inizio.Month || dada.Day < inizio.Day || dada.Hour < o ||
+                            (dada.Hour == o && (m == 0 ? dada.Minute < m + 30 : true))) &&
+                            (ada.Year < fine.Year || ada.Month < inizio.Month || ada.Day > inizio.Day || ada.Hour > o ||
+                            (ada.Hour >= o && ada.Minute > m))) blu = true;
+                        //if ((dada.Year < inizio.Year || dada.Month < inizio.Month || dada.Day < inizio.Day || dada.Hour <= o) &&
+                        //   (ada.Year > inizio.Year || ada.Month > inizio.Month || ada.Day > inizio.Day || ada.Hour >= o)) blu = true;
+                        tc.ApplyStyle(blu ? SPieno : SVuoto);
+                        //tc1.ApplyStyle(blu ? SPieno : SVuoto);
+                        tc.Text = "";
+                        tRow.Cells.Add(tc);
+                        tc = null; //tc1 = null;
+                    }
+                }
+                tcale.Rows.Add(tRow);       // aggiungo riga alla tabella tcale Righello                           
+                r++;
+            }
+            //tHeader.Visible = true;
+            //tcale.Visible = true;
+            PBuchi.Visible = true;
+        }
+        else
+            PBuchi.Visible = false;
+    }
+
+    protected void cbInfo_CheckedChanged(object sender, EventArgs e)
+    {
+        if (!checkSession())  // ripristino idu, aid e carico dati user
+        {
+            s = "Sessione scaduta. Prego ricollegarsi.";
+            ShowPopUpMsg(s);
+            Response.Redirect("default.aspx?session=0");
+        }
+        if (cbInfo.Checked)
+        {
+            idu = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
+            initChartLibere(idu.ToString());
+            BuchiShow(idu.ToString());              
+        }
+        else
+        {
+            pChart.Visible = false;
+            PBuchi.Visible = false;
+        }
+    }
+
+    protected void CldInizio_VisibleMonth(object sender, MonthChangedEventArgs e)
+    {
+        cbInfo_CheckedChanged(this, new EventArgs());
+    }
 }

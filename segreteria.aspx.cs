@@ -1,4 +1,22 @@
-﻿using System;
+﻿ /*
+ * Copyright(C) 2017 Provincia Autonoma di Trento
+ *
+ * This file is part of<nome applicativo>.
+ * Pitre is free software: you can redistribute it and/or modify
+ * it under the terms of the LGPL as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pitre is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the LGPL v. 3
+ * along with Pitre.If not, see<https://www.gnu.org/licenses/lgpl.html>.
+ * 
+ */
+using System;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data;
@@ -268,7 +286,7 @@ public partial class segreteria : System.Web.UI.Page
 			Session.Add("strapotere", utenti.potere);
 		}
 
-		tbl = pre.Prenotazioni("", dti, dtf, tNome.Text, tCognome.Text, "", tMatricola.Text, ddlUbi.SelectedValue.Trim(), ddlTarga.SelectedItem.Text.Trim(), ddlNumero.SelectedItem.Text.Trim(), utenti.struttura_cod.Trim(), out qry, out msg); // mi ritorna le prenotazione sino a 365gg fa
+		tbl = pre.PrenotazioniGerarchiche("", dti, dtf, tNome.Text, tCognome.Text, "", tMatricola.Text, ddlUbi.SelectedValue.Trim(), ddlTarga.SelectedItem.Text.Trim(), ddlNumero.SelectedItem.Text.Trim(), utenti.struttura_cod.Trim(), utenti.dipendeda_ek.Trim(), out qry, out msg); // mi ritorna le prenotazione sino a 365gg fa
         if (msg != null && msg != "")
         {
             sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
@@ -316,14 +334,33 @@ public partial class segreteria : System.Web.UI.Page
 
 		try
         {
-			gwPrenotazioni.AllowSorting = true;
+            gwPrenotazioni.Columns[10].Visible = true;
+            gwPrenotazioni.AllowSorting = true;
 			//gwPrenotazioni.DataSource = "";
 			//gwPrenotazioni.DataBind();
 			gwPrenotazioni.DataSource = gwpre;
 			gwpre.DefaultView.Sort = colonna;
 			gwPrenotazioni.DataBind();
-			//gwPrenotazioni.Sort(colonna, direction);
-			gwPrenotazioni.Visible = true;						
+            //gwPrenotazioni.Sort(colonna, direction);
+            gwPrenotazioni.Visible = true;
+            gwPrenotazioni.Columns[10].Visible = false;
+            int ok = 0;
+            int argb = 0, argbold = -1;
+            foreach (GridViewRow r in gwPrenotazioni.Rows) // faccio il giro e coloro
+            {
+                string col = r.Cells[10].Text.ToString();
+                if (col != "&nbsp;" && col != "")
+                {
+                    argb = Int32.Parse(col, System.Globalization.NumberStyles.HexNumber);
+                    r.BackColor = System.Drawing.Color.FromArgb(argb);
+                    if (argb != argbold) { argbold = argb; ok++; }
+                }
+                else
+                {
+                    argb = 0;
+                    if (argb != argbold) { argbold = argb; ok++; }
+                }
+            }						
 			sStato.Text = "Prenotazioni trovate: " + gwpre.Rows.Count;
         }
         catch (Exception ex)
@@ -381,8 +418,10 @@ public partial class segreteria : System.Web.UI.Page
 	protected void cbhome_Click(object sender, EventArgs e)
 	{
 		gwPrenotazioni.Visible = true;
-		Panel1.Visible = true;
-	}
+		cbcConferma.Visible = false;
+        tRiepilogo.Visible = false;
+        Panel1.Visible = true;
+    }
 	
 	protected void gwPrenotazioni_Sorting(object sender, GridViewSortEventArgs e)
 	{
@@ -410,11 +449,6 @@ public partial class segreteria : System.Web.UI.Page
         cldA.SelectedDate = dtf;
         checkSession();
         Cerca(sender, e, "partenza", "DESC");
-    }
-
-    protected void cbIeri_Click(object sender, EventArgs e)
-    {
-
     }
 
     protected void cbRapido_Command(object sender, CommandEventArgs e)
@@ -451,8 +485,110 @@ public partial class segreteria : System.Web.UI.Page
         }
         Cerca(sender, e, "partenza", "DESC");
     }
+
+    protected void cbcCancella_Click(object sender, EventArgs e)
+    {
+        // Cerco la prenotazione, carico i dati in tbl
+        // invio mail al prenotante
+        // cancello la prenotazione
+        string msg = "";
+        idp = Session["idp"].ToString();
+        pre.id = idp;
+        tbl = pre.cercaid(idp, out msg);
+        if (tbl != null && tbl.Rows.Count == 1)
+            pre.refresh(tbl);
+        string idu = Session["iduser"] != null ? Session["iduser"].ToString() : "-1";
+        int rr = pre.Cancella(pre.id, idu, out msg);
+        if (rr < 0)
+        {
+            sStato.Text = "Cancellazione non riusicta. Contattare il servizio assistenza al n. " + Session["assistenza"].ToString();
+            cbcConferma.Visible = false;
+            return;
+        };
+        if (rr == 0)
+        {
+            sStato.Text = "Non è possibile cancellare le richieste con data e ora di inizio già passate!";
+            cbcConferma.Visible = false;
+            return;
+        }
+        if (tbl != null && tbl.Rows.Count == 1)
+        {
+            gmail gm = new gmail();
+
+            // OK ora   1) inoltro la password via mail; 2) aggiorno il campo cambio password;
+            string[] chi = { pre.mail }; // in questa maniera definisco il numero di elementi dell'array
+            gm.achi = chi;
+            string[] ccn = { "tiziano.donati@provincia.tn.it" };
+            //gm.achiccn = ccn;
+            gm.subject = "Avviso di cancellazione della prenotazione automezzi in condivisione.";
+            gm.body = "Buongiorno gentile " + pre.nome + " " + pre.cognome + ",\n\n";
+            gm.body += "\tLa informiamo che è stata cancellata la Sua prenotazione i cui estremi sono di seguito riportati:\n";
+            gm.body += "Destinazione: \t\t" + pre.dove_comune + "\n";
+            gm.body += "Partenza:     \t\t" + pre.partenza + "\n";
+            gm.body += "Arrivo:       \t\t" + pre.arrivo + "\n";
+            gm.body += "Veicolo num.  \t\t" + pre.numero + "\n";
+            gm.body += "Targa:        \t\t" + pre.targa + "\n";
+            gm.body += "Marca-Modello:\t\t" + pre.marca + " " + pre.modello + "\n";
+            gm.body += "Ritiro chiavi:\t\t" + pre.ubicazione_desc + "\n\n";
+            gm.body += "Cordiali saluti.\n\n";
+            gm.body += "Non rispondere alla mail. La presente è stata inviata da un sistema automatico.";
+            gm.numeritel = "0461 - 496415";
+
+            bool spedita = gm.mandamail("", 0, "", "", out msg);
+            if (!spedita)
+            {
+                sStato.Text = "Inoltro mail fallito. Cancellazione non effettuata. Contattare l'assistenza al numero " + gm.numeritel;
+                return;
+            }
+        }
+
+        sStato.Text = "Cancellazione avvenuta! Avvisato l'utente con email...";
+        cbcConferma.Visible = false;
+        gwPrenotazioni.Visible = true;
+        tRiepilogo.Visible = false;
+        Panel1.Visible = true;
+        bnuova_Click(this, e = new EventArgs());
+    }
+
+    protected void gwPrenotazioni_RowDeleting(object sender, GridViewDeleteEventArgs e)
+    {
+        gwPrenotazioni.Visible = false;
+        Panel1.Visible = false;
+        string s = "";
+
+        foreach (DictionaryEntry keyEntry in e.Keys)
+        {
+            s += keyEntry.Value;
+        }
+        if (s.Length == 0)
+            Response.Redirect("menu.aspx?l=anagrafica");
+
+        // mi prendo la prenotazione che avevo selezionato per ultima...
+        Session.Add("idp", s);
+        pre.id = s;
+        Label lcognome = (Label)gwPrenotazioni.Rows[e.RowIndex].FindControl("Cognome");
+        Label lnome = (Label)gwPrenotazioni.Rows[e.RowIndex].FindControl("Nome");
+        lPrenotante.Text = lcognome.Text + " " + lnome.Text;
+        lPartenza.Text = gwPrenotazioni.Rows[e.RowIndex].Cells[1].Text;
+        lRientro.Text = gwPrenotazioni.Rows[e.RowIndex].Cells[2].Text;
+        lDestinazione.Text = gwPrenotazioni.Rows[e.RowIndex].Cells[3].Text;
+        lVeicolo.Text = gwPrenotazioni.Rows[e.RowIndex].Cells[4].Text;
+        lRitiro.Text = gwPrenotazioni.Rows[e.RowIndex].Cells[8].Text;
+        lNumero.Text = gwPrenotazioni.Rows[e.RowIndex].Cells[6].Text + "    -    " + gwPrenotazioni.Rows[e.RowIndex].Cells[5].Text;
+        //lVeicolo.Text = gwPrenotazioni.Rows[e.RowIndex].Cells[6].Text;
+        tRiepilogo.Visible = true;
+        cbcConferma.Visible = true;
+        sStato.Text = "";
+    }
+
+    protected void gwPrenotazioni_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.Cells[2] != null)
+        {
+            DateTime dt;
+            DateTime.TryParse(e.Row.Cells[2].Text, out dt);
+            if (dt < DateTime.Now)
+                e.Row.Cells[0].Enabled = false;
+        }
+    }
 }
-
-
-
-

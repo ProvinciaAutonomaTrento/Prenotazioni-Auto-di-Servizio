@@ -1,4 +1,23 @@
-﻿using System;
+﻿ /*
+ * Copyright(C) 2017 Provincia Autonoma di Trento
+ *
+ * This file is part of<nome applicativo>.
+ * Pitre is free software: you can redistribute it and/or modify
+ * it under the terms of the LGPL as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pitre is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the LGPL v. 3
+ * along with Pitre.If not, see<https://www.gnu.org/licenses/lgpl.html>.
+ * 
+ */
+
+using System;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data;
@@ -37,7 +56,7 @@ public partial class editpre : System.Web.UI.Page
                 Response.Redirect("default.aspx");
             }
 
-            LBenvenuto.Text = " Benvenuto " + utenti.nome + " " + utenti.cognome;
+            LBenvenuto.Text = " Benvenuta/o " + utenti.nome + " " + utenti.cognome;
             Session.Add("potere", utenti.potere);
             ddlPotere.Items.Clear();
 			tbl.Clear();
@@ -229,7 +248,7 @@ public partial class editpre : System.Web.UI.Page
 		//cldDA.SelectedDate = dti; cldA.SelectedDate = dtf;
 		string qry = "";
 		tbl.Clear(); // necessario
-		tbl = pre.Prenotazioni("", dti, dtf, tNome.Text, tCognome.Text, tNikname.Text, tMatricola.Text, ddlUbi.SelectedValue.Trim(), ddlTarga.SelectedItem.Text.Trim(), ddlNumero.SelectedItem.Text.Trim(), "", out qry, out msg); // mi ritorna le prenotazione sino a 365gg fa
+        tbl = pre.Prenotazioni("", dti, dtf, tNome.Text, tCognome.Text, tNikname.Text, tMatricola.Text, ddlUbi.SelectedValue.Trim(), ddlTarga.SelectedItem.Text.Trim(), ddlNumero.SelectedItem.Text.Trim(), "", "", out qry, out msg); // mi ritorna le prenotazione sino a 365gg fa
         if (msg != null && msg != "")
         {
             sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
@@ -379,8 +398,10 @@ public partial class editpre : System.Web.UI.Page
 		// mi prendo la prenotazione che avevo selezionato per ultima...
 		Session.Add("idp", s);
 		pre.id = s;
-		lPrenotante.Text = gwPrenotazioni.Rows[e.RowIndex].Cells[11].Text + " " + gwPrenotazioni.Rows[e.RowIndex].Cells[10].Text;
-		lPartenza.Text = gwPrenotazioni.Rows[e.RowIndex].Cells[2].Text;
+        Label lcognome = (Label)gwPrenotazioni.Rows[e.RowIndex].FindControl("Cognome");
+        Label lnome = (Label)gwPrenotazioni.Rows[e.RowIndex].FindControl("Nome");
+        lPrenotante.Text = lcognome.Text + " " + lnome.Text;
+        lPartenza.Text = gwPrenotazioni.Rows[e.RowIndex].Cells[2].Text;
 		lRientro.Text = gwPrenotazioni.Rows[e.RowIndex].Cells[3].Text;
 		lDestinazione.Text = gwPrenotazioni.Rows[e.RowIndex].Cells[4].Text;
 		lVeicolo.Text = gwPrenotazioni.Rows[e.RowIndex].Cells[5].Text;

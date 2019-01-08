@@ -31,7 +31,7 @@ using System.Net.Mail;
 using System.Web;
 using System.Threading;
 
-public partial class registro : System.Web.UI.Page
+public partial class registro_flotte : System.Web.UI.Page
 {
     public ConnessioneFB FBConn = new ConnessioneFB();
     public gmail gm;
@@ -71,7 +71,7 @@ public partial class registro : System.Web.UI.Page
         else
         {
             msg = "";
-            /*s = "SELECT distinct ub.id, c.comune, ub.via, ub.civico, ub.ubicazione ";
+            s = "SELECT distinct ub.id, c.comune, ub.via, ub.civico, ub.ubicazione ";
             s += "FROM UTENTi as u ";
             s += "left join UTENTE_GRUPPO as ug on ug.utente_ek = u.id ";
             s += "left join GRUPPI as gr on gr.gruppo_ek = ug.gruppo_ek ";
@@ -79,9 +79,10 @@ public partial class registro : System.Web.UI.Page
             s += "left join MEZZI as m on m.id = gr.auto_ek ";
             s += "left join UBICAZIONE as ub on ub.id = m.ubicazione_ek ";
             s += "left join COMUNI as c on c.comune_k = ub.comune_ek ";
-            s += "where m.abilitato = 1 and e.id != 3 and utente_ek = " + id + " "; */
+            s += "where m.abilitato = 1 and e.id != 3 and utente_ek = " + id + " ";
+            
             cds.Clear();
-            cds = FBConn.getfromDSet("select a.*, b.comune from ubicazione as a left join comuni as b on a.comune_ek=b.comune_k where a.abilitato > 0 order by b.comune, a.ubicazione", "ubicazioni", out msg);
+            cds = FBConn.getfromDSet(s, "ubicazioni", out msg);
             FBConn.closeaFBConn(out s);
             if (msg.Length >= 1)
                 sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
@@ -790,6 +791,7 @@ public partial class registro : System.Web.UI.Page
 			sStato.Text = "Riscontrato errore durante la ricerca delle missioni. Errore: " + ex.ToString() + " Avvertire l'amministratore al n. " + (string)Session["assistenza"].ToString();
 		}
 	}
+
 	protected void ddlSedi_SelectedIndexChanged(object sender, EventArgs e)
 	{
 		pElenco.Visible = false;

@@ -1,4 +1,26 @@
-﻿using System;
+﻿/*
+ *
+ *
+ *
+ * Copyright(C) 2017 Provincia Autonoma di Trento
+ *
+ * This file is part of<nome applicativo>.
+ * Pitre is free software: you can redistribute it and/or modify
+ * it under the terms of the LGPL as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pitre is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the LGPL v. 3
+ * along with Pitre.If not, see<https://www.gnu.org/licenses/lgpl.html>.
+ * 
+ */ 
+
+using System;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data;
@@ -40,15 +62,28 @@ public partial class anagrafica : System.Web.UI.Page
             //string[] p = { "", "-1", "utente", "0", "segreteria", "10" , "operatore", "20", "admin", "50" ,  "superadmin", "100"  };
 			ddlPotere.Items.Clear();
 			tbl.Clear();
-			tbl = FBClass.getfromTbl("select * from poteri where codice <=\'" + (utenti.potere - 1).ToString() + "\' ", out msg);
+			tbl = FBClass.getfromTbl("select * from poteri where codice <=\'" + (utenti.potere).ToString() + "\' ", out msg);
 			int j;
 			ddlPotere.Items.Insert(0, new ListItem("", "-1"));
 			for (int i = 0; i < tbl.Rows.Count; i++)
 			{
-				s = tbl.Rows[i]["potere"] != DBNull.Value ? tbl.Rows[i]["potere"].ToString() : "";
-     			ddlPotere.Items.Insert(i+1, new ListItem(s, tbl.Rows[i]["codice"] != DBNull.Value ? tbl.Rows[i]["codice"].ToString() : "-1"));
-			}
-			tNikname.Focus();
+                s = tbl.Rows[i]["potere"] != DBNull.Value ? tbl.Rows[i]["potere"].ToString() : "";
+                Int32.TryParse(tbl.Rows[i]["codice"].ToString(), out j);
+                
+                if (utenti.potere <= 100 && j < utenti.potere)
+                {                    
+                    ddlPotere.Items.Insert(i + 1, new ListItem(s, tbl.Rows[i]["codice"] != DBNull.Value ? tbl.Rows[i]["codice"].ToString() : "-1"));
+                }
+                else
+                {
+                    if (utenti.potere > 100)
+                    {
+                        ddlPotere.Items.Insert(i + 1, new ListItem(s, tbl.Rows[i]["codice"] != DBNull.Value ? tbl.Rows[i]["codice"].ToString() : "-1"));
+                    }
+                }
+
+            }
+            tNikname.Focus();
             //pElenco.Visible = true;
         }
     }
@@ -251,7 +286,6 @@ public partial class anagrafica : System.Web.UI.Page
                     sStato.Text = "Password imposta con successo!";
             };
             tpassword.Text = "";
-            
         }
     }
 
@@ -273,7 +307,3 @@ public partial class anagrafica : System.Web.UI.Page
         pElenco.Visible = false;
     }
 }
-
-
-
-

@@ -18,7 +18,7 @@
  * 
  */ --%>
 
-<%@ Page Title="Atrezzi operatore" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true" CodeFile="registro.aspx.cs" Inherits="registro" %>
+<%@ Page Title="Atrezzi operatore" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true" CodeFile="registro_flotte.aspx.cs" Inherits="registro_flotte" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" Runat="Server">
 <style>
@@ -75,7 +75,7 @@
 </style>
 <br />
 <div class="hrbianca"></div>
-<div style="height: 22px; text-align: center; font-size: 22px;">REGISTRO PRENOTAZIONI</div>
+<div style="height: 22px; text-align: center; font-size: 22px;">REGIREGISTRO PRENOTAZIONI FLOTTE</div>
     <br /><div class="hrbianca"></div>
 <div class="menu">
     <div style="width: 880px; float: left; height:26px; text-align: left; ">
@@ -92,7 +92,7 @@
             <tr>
                 <td class="col1"></td>
                 <td class="col1"></td>
-                <td class="col3" colspan="3"><div style="border: 3px solid green; border-radius: 6px; text-align:center;">Stampa registro</div></td> 
+                <td class="col3" colspan="3"><div style="border: 3px solid green; border-radius: 6px; text-align:center;">Stampa registro</td> 
                 <td class="col1">&nbsp;</td>
             </tr>
             <tr>

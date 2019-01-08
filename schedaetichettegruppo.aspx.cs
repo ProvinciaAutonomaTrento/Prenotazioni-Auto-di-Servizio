@@ -1,4 +1,23 @@
-﻿using System;
+﻿ /*
+ * Copyright(C) 2017 Provincia Autonoma di Trento
+ *
+ * This file is part of<nome applicativo>.
+ * Pitre is free software: you can redistribute it and/or modify
+ * it under the terms of the LGPL as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pitre is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the LGPL v. 3
+ * along with Pitre.If not, see<https://www.gnu.org/licenses/lgpl.html>.
+ * 
+ */
+
+ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -34,9 +53,14 @@ public partial class schedaetichettegruppo : System.Web.UI.Page
             ddlColori.Items.Insert(0, new ListItem("", ""));
             ddlColori.Items.Insert(1, new ListItem("Verde chiaro", "AFCFAA"));
             ddlColori.Items.Insert(2, new ListItem("Rosa", "DE9AA4"));
-            ddlColori.Items.Insert(3, new ListItem("Rosso corallo", "A93629"));
+            ddlColori.Items.Insert(3, new ListItem("Canarino", "FFFFCC"));
             ddlColori.Items.Insert(4, new ListItem("Turchese", "72AAA8"));
             ddlColori.Items.Insert(5, new ListItem("Giallo chiaro", "F0CFA1"));
+            ddlColori.Items.Insert(6, new ListItem("Azzurro", "99FFFF"));
+            ddlColori.Items.Insert(7, new ListItem("Verde", "99FF99"));
+            ddlColori.Items.Insert(8, new ListItem("Rosa", "FFCCCC"));
+            ddlColori.Items.Insert(9, new ListItem("Arancione", "FFCC99"));
+            ddlColori.Items.Insert(10, new ListItem("Violetto", "FFCCFF"));
         }
     }
 	private bool checkSession()

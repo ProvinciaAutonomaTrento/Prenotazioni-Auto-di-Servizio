@@ -1,4 +1,23 @@
-﻿using System;
+﻿ /*
+ * Copyright(C) 2017 Provincia Autonoma di Trento
+ *
+ * This file is part of<nome applicativo>.
+ * Pitre is free software: you can redistribute it and/or modify
+ * it under the terms of the LGPL as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pitre is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the LGPL v. 3
+ * along with Pitre.If not, see<https://www.gnu.org/licenses/lgpl.html>.
+ * 
+ */ 
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -341,9 +360,12 @@ public partial class ConfermaPrenotazionedn : System.Web.UI.Page
 	protected void btNuova_Click(object sender, EventArgs e)
 	{
 		idp = "";
-		aid = "";
-		Session.Add("aid", "");
+		//aid = "";
+		//Session.Add("aid", "");
 		Session.Add("idp", ""); // azzero la prenotazione, ne vado a fare una nuova
-		Response.Redirect("pre.aspx");
+        if (aid != "")
+            Response.Redirect("pre.aspx?aid=" + aid + "&nome=" + utenti.nome + "&cognome=" + utenti.cognome + "&p=" + utenti.potere);
+        else
+            Response.Redirect("pre.aspx");
 	}
 }

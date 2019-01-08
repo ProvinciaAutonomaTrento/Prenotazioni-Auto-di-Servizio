@@ -1,4 +1,24 @@
-﻿<%@ Page Title="Attrezzi operatore" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true" CodeFile="menu.aspx.cs" Inherits="menu" %>
+﻿<%--
+ /*
+ * Copyright(C) 2017 Provincia Autonoma di Trento
+ *
+ * This file is part of<nome applicativo>.
+ * Pitre is free software: you can redistribute it and/or modify
+ * it under the terms of the LGPL as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pitre is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the LGPL v. 3
+ * along with Pitre.If not, see<https://www.gnu.org/licenses/lgpl.html>.
+ * 
+ */ --%>
+
+<%@ Page Title="Attrezzi operatore" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true" CodeFile="menu.aspx.cs" Inherits="menu" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" Runat="Server">
 <style>
@@ -215,13 +235,16 @@
             <div style="font-size: 15px;">
                 <a href="segreteria.aspx">report segreteria</a><br />
             </div>
+            <div style="font-size: 15px;">
+                <a href="registro_flotte.aspx">stampa registro </a><br />
+            </div>
         </div>
         </asp:Panel>
         <asp:Panel ID="PRegistro" runat="server" Visible ="false" CssClass="panelbox">
            <div class="menuRegistro">
                 <span style="font-size: 20px; ">Registro</span><br />        
                 <div style="font-size: 15px;">
-                    <a href="Registro.aspx">Stampa registro</a><br />
+                    <a href="Registro.aspx">stampa registro</a><br />
                 </div>
            </div>
         </asp:Panel>
