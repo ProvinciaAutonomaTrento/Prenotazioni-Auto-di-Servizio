@@ -172,7 +172,7 @@ public partial class schedaubicazioni : System.Web.UI.Page
 				else
 				{
 					id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-					CLogga.logga("Ubicazioni", s + where, 2, "Modifica ubicazioni", id, out msgl);
+					CLogga.logga("Ubicazioni", s + where, 2, "Modifica ubicazioni", id.ToString(), ddlUbi.SelectedValue.ToString(), out msgl);
 				}
 			}
             catch (Exception ex)
@@ -254,12 +254,13 @@ public partial class schedaubicazioni : System.Web.UI.Page
                     }
 
                     s = "insert into ubicazione (id, ubicazione, via, civico, comune_ek, descrizione, apertodalle, apertofino, abilitato" + (copiomappa ? ", nomefoto1" : "") + (copiofoto ? ", nomefoto2" : "") + ") values (null, ";
-                    s +="\'" + tUbi.Text + "\', \'" + tVia.Text + "\', \'" + tCivico.Text + "\', \'" + ddlComune.SelectedValue + "\', \'" + tDescrizione.Text + "\', cast(\'"+tDalle.Text+"\' as time), cast(\'" + tAlle.Text+"\' as time), " + (cbAbilitata.Checked ? "1" : "0") + (copiomappa ? ", \'" + filesfoto[0] + "\'" : "") + (copiofoto ? ", \'" + filesfoto[1] + "\'": "") + ")";
+                    s +="\'" + tUbi.Text + "\', \'" + tVia.Text + "\', \'" + tCivico.Text + "\', \'" + ddlComune.SelectedValue + "\', \'" + tDescrizione.Text + "\', cast(\'"+tDalle.Text+"\' as time), cast(\'" + tAlle.Text+"\' as time), " + (cbAbilitata.Checked ? "1" : "0") + (copiomappa ? ", \'" + filesfoto[0] + "\'" : "") + (copiofoto ? ", \'" + filesfoto[1] + "\'": "") + ")  returning id ";
                     msg = "";
-                    Int32 rr = FBConn.EsegueCmd(s, out msg);
-					if (rr == 1 && (copiomappa || copiofoto)) // devo cambiare il contenuto dei due campi foto1 e foto2 e il nome dei due file foto
+                    Int32 rr = FBConn.AddCmd(s, out msg);
+                    if (rr > 0) CLogga.logga("Ubicazioni", s, 1, "Inserimento ubicazioni", idu.ToString(), rr.ToString(), out msgl);
+                    if (rr > 0 && (copiomappa || copiofoto)) // devo cambiare il contenuto dei due campi foto1 e foto2 e il nome dei due file foto
                     {
-						CLogga.logga("Ubicazioni", s, 1, "Inserimento ubicazioni", idu, out msgl);
+						//CLogga.logga("Ubicazioni", s, 1, "Inserimento ubicazioni", idu.ToString(), rr.ToString(), out msgl);
 						s = "select id, nomefoto1, nomefoto2 from ubicazione where ubicazione=\'" + tUbi.Text + "\'"; // se serve....
                         ds.Clear();
                         ds = FBConn.getfromDSet(s, "ubi", out msg);
@@ -294,7 +295,7 @@ public partial class schedaubicazioni : System.Web.UI.Page
                     }
                     else
                     {
-                        if (rr != 1)
+                        if (rr < 0)
                         {
                             sStato.Text = "ERRORE: inserimento ubicazione non riusto. Contattare il servizio assistenza al numero " + (string)Session["assistenza"];
                             return;
@@ -324,7 +325,6 @@ public partial class schedaubicazioni : System.Web.UI.Page
             where = "where id=" + ddlUbi.SelectedValue + " and ubicazione =\'" + tUbi.Text + "\'";
             msg = "";
             Int32 rr = FBConn.EsegueCmd(s + where, out msg);
-
             if (rr != 1)
             {
                 sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
@@ -333,12 +333,10 @@ public partial class schedaubicazioni : System.Web.UI.Page
             else
                 sStato.Text = "Cancellazione di " + tUbi.Text + " avvenuta con successo!";
 			id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-			CLogga.logga("Ubicazioni", s + where, 3, "Cancellazione ubicazione", id, out msgl);
-
+			CLogga.logga("Ubicazioni", s + where, 3, "Cancellazione ubicazione", id.ToString(), ddlUbi.SelectedValue.ToString(), out msgl);
 			string SaveLocation = Server.MapPath("Data") + "\\";
             foreach (string f in filesfoto)
                 if (f != "" && f != null) File.Delete(SaveLocation + f);
-
             LeggiUbicazioni();
             CaricaUbicazione(ddlUbi.SelectedValue);
         }

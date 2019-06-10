@@ -101,7 +101,7 @@ public partial class schedaproduttori : System.Web.UI.Page
 			{
 				sStato.Text = "Operazione salvataggio dati andata a buon fine.";
 				id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-				CLogga.logga("produttori", s + where, 2, "Modifica produttori", id, out msgl);
+				CLogga.logga("produttori", s + where, 2, "Modifica produttori", id.ToString(), ddl.SelectedValue.ToString(), out msgl);
 			}
 			else
 				sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
@@ -109,7 +109,6 @@ public partial class schedaproduttori : System.Web.UI.Page
             ddl.SelectedIndex = i;
         }
     }
-
     protected void bInsert_Click(object sender, EventArgs e)
     {
 		checkSession();
@@ -137,14 +136,14 @@ public partial class schedaproduttori : System.Web.UI.Page
                 }
                 else //posso inserire nuova sede
                 {
-                    s = "insert into marca (id, Marca, abilitato) values (null, \'" + tTesto.Text + "\', " + (cbAbilitata.Checked ? "1" : "0") + ")";
+                    s = "insert into marca (id, Marca, abilitato) values (null, \'" + tTesto.Text + "\', " + (cbAbilitata.Checked ? "1" : "0") + ")  returning id ";
                     msg = "";
-                    Int32 rr = FBConn.EsegueCmd(s, out msg);
-                    if (rr == 1)
+                    Int32 rr = FBConn.AddCmd(s, out msg);
+                    if (rr > 0)
                     {
 						sStato.Text = "Operazione salvataggio dati andata a buon fine.";
 						id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-						CLogga.logga("produttori", s, 1, "Insert produttori", id, out msgl);
+						CLogga.logga("produttori", s, 1, "Insert produttori", id.ToString(), rr.ToString(), out msgl);
 						LeggiProduttori();
                         CaricaProduttori(ddl.SelectedValue.ToString());
                     }
@@ -177,7 +176,7 @@ public partial class schedaproduttori : System.Web.UI.Page
             else
                 sStato.Text = "Cancellazione di " + tTesto.Text + " avvenuta con successo!";
 			id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-			CLogga.logga("produttori", s + where, 3, "Delete produttori", id, out msgl);
+			CLogga.logga("produttori", s + where, 3, "Delete produttori", id.ToString(), ddl.SelectedValue.ToString(), out msgl);
 			LeggiProduttori();
             CaricaProduttori(ddl.SelectedValue.ToString());
         }

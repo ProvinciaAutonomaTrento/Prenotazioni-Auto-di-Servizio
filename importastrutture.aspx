@@ -144,12 +144,12 @@
 </div>
 <div class="hrbianca"></div>
 <div style="clear:both; float:left; margin: 50px; text-align: left;"> 
-    Indicare la stringa di connessione/data source usata per questo collegare la sorgenrte dati<br />
-    <asp:Label runat="server" width="200px">Provider</asp:Label><asp:TextBox id="tProvider" runat="server" Width="320px" ></asp:TextBox><br />
-    <asp:Label runat="server" width="200px">Data Source</asp:Label><asp:TextBox id="tData" runat="server" Width="320px"  ></asp:TextBox><br />
+    Indicare il percorso e il nome del file da importare<br />
+    <asp:Label runat="server" width="200px">url del file .csv da importare</asp:Label><asp:TextBox id="tPercorso" runat="server" Width="320px" ></asp:TextBox><br />
+    <%--<asp:Label runat="server" width="200px">Data Source</asp:Label><asp:TextBox id="tData" runat="server" Width="320px"  ></asp:TextBox><br />
     <asp:Label runat="server" width="200px">Tabella</asp:Label><asp:TextBox id="tTabella" runat="server" Width="320px"  ></asp:TextBox><br />
     <asp:Label runat="server" width="200px">Username</asp:Label><asp:TextBox id="tUser" runat="server" Width="320px"  ></asp:TextBox><br />
-    <asp:Label runat="server" width="200px">Password</asp:Label><asp:TextBox id="tPassword" runat="server" Width="320px"  ></asp:TextBox>
+    <asp:Label runat="server" width="200px">Password</asp:Label><asp:TextBox id="tPassword" runat="server" Width="320px"  ></asp:TextBox> --%>
 </div>
 <p class="centra-text clearfix">
 <asp:Label ID="tStato" runat="server" style="clear: both; border-width: 1px; border-radius: 4px; Border-Color: blue; width: 1024px; box-sizing: border-box;"></asp:Label>

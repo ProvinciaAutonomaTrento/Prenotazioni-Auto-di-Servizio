@@ -17,7 +17,7 @@
  * 
  */
 
- using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -124,7 +124,7 @@ public partial class schedaetichettegruppo : System.Web.UI.Page
 			{
 				sStato.Text = "Operazione salvataggio dati andata a buon fine.";
 				id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-				CLogga.logga("etichetta_gruppo", s + where, 2, "Modifica etichetta_gruppo", id, out msgl);
+				CLogga.logga("etichetta_gruppo", s + where, 2, "Modifica etichetta_gruppo", id.ToString(), ddl.SelectedValue.ToString(), out msgl);
 			}
 			else
 				sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
@@ -167,13 +167,13 @@ public partial class schedaetichettegruppo : System.Web.UI.Page
                     s += "\'" + tNumeroMaxPrenotazioni.Text + "\', ";
                     s += (cBLPercorso.Checked ? "1" : "0") + ", ";
                     s += (cBLElettrici.Checked ? "1" : "0") + ", ";
-                    s += "\'" + ddlColori.SelectedValue.ToString() + "\')";
+                    s += "\'" + ddlColori.SelectedValue.ToString() + "\')  returning id ";
                     msg = "";
-                    Int32 rr = FBConn.EsegueCmd(s, out msg);
-                    if (rr == 1)
+                    Int32 rr = FBConn.AddCmd(s, out msg);
+                    if (rr > 0)
                     {
 						id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-						CLogga.logga("etichetta_gruppo", s, 2, "Insert etichetta_gruppo voce", id, out msgl);
+						CLogga.logga("etichetta_gruppo", s, 2, "Insert etichetta_gruppo voce", id.ToString(), rr.ToString(), out msgl);
 						sStato.Text = "Aggiunta nuova flotta andata a buon fine.";
                         Leggiddl(); Caricadatiddl(ddl.SelectedValue.ToString());
                     }
@@ -207,7 +207,7 @@ public partial class schedaetichettegruppo : System.Web.UI.Page
 			{
 				sStato.Text = "Cancellazione di " + tTesto.Text + " avvenuta con successo!";
 				id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-				CLogga.logga("etichetta_gruppo", s + where, 3, "Cancellazione etichetta_gruppo", id, out msgl);
+				CLogga.logga("etichetta_gruppo", s + where, 3, "Cancellazione etichetta_gruppo", id.ToString(), ddl.SelectedValue.ToString(), out msgl);
 			}
             Leggiddl(); Caricadatiddl(ddl.SelectedValue.ToString());
         }

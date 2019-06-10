@@ -172,7 +172,7 @@ public partial class prenota : System.Web.UI.Page
             //initChartLibere(utenti.iduser.ToString());
             //BuchiShow(idu.ToString());
 		}
-        cbInfo.Visible = true;
+        bInfo.Visible = true;
         ddlProvincia.Focus();
 	}
 	private bool checkSession()
@@ -309,7 +309,7 @@ public partial class prenota : System.Web.UI.Page
 	protected void ddlRitiro_SelectedIndexChanged(object sender, EventArgs e)
 	{
 		idu = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-        cbInfo_CheckedChanged(this, new EventArgs());
+        bInfo_azione();
     }
 
 	protected void ddlStato_SelectedIndexChanged(object sender, EventArgs e)
@@ -347,7 +347,8 @@ public partial class prenota : System.Web.UI.Page
 				if (ds.Tables["comuni"].Rows.Count > 0)
 				{
 					ddlComune.Items.Clear();
-					string s = "", ss = "";
+                    string ss = "";
+                    s = "";
 					ddlComune.Items.Insert(0, new ListItem("", ""));
 					for (int i = 0; i < ds.Tables["comuni"].Rows.Count; i++)
 					{
@@ -377,7 +378,7 @@ public partial class prenota : System.Web.UI.Page
 			PImput.Visible = true; //initChartLibere();
 			sStato.Text = "";
             pConferma.Visible = false;
-            cbInfo_CheckedChanged(this, new EventArgs());
+            bInfo_azione();
 			return;
 		}
 
@@ -392,7 +393,7 @@ public partial class prenota : System.Web.UI.Page
 		// devo effetuare le verifiche sui dati di input
 		int ko = 0;
 		s = "";
-		if (ddlStato.SelectedItem.Text == "Italia" && ddlComune.SelectedValue == "") { s = "Comune di destinazione; "; ko++; }
+        if (ddlStato.SelectedItem.Text == "Italia" && ddlComune.SelectedValue == "") { s = "Comune di destinazione; "; ko++; }
 		if (ddlStato.SelectedItem.Text == "Estero" && tComuneEstero.Text == "") { s = "Comune estero di destinazione; "; ko++; }
 		if (CldInizio.SelectedDate.ToString() == "01/01/0001 00:00:00") { s += "Data inizio; "; ko++; }
 		if (CldFine.SelectedDate.ToString() == "01/01/0001 00:00:00") { s += "Data fine; "; ko++; }
@@ -409,7 +410,8 @@ public partial class prenota : System.Web.UI.Page
 		dtfine = new DateTime(CldFine.SelectedDate.Year, CldFine.SelectedDate.Month, CldFine.SelectedDate.Day, ddlOrafine.SelectedIndex, ddlMinfine.SelectedIndex * 5, 0);
 		lRientro.ForeColor = System.Drawing.Color.Black;
 		s = ddlMininizio.SelectedValue.Length > 1 ? ddlMininizio.SelectedValue.ToString() : "0" + ddlMininizio.SelectedValue.ToString();
-		int k, j;
+        
+        int k, j;
 		string alarr = "", alpar = "";
 		if (tDIS.Value.Length > 0)
 		{
@@ -431,7 +433,7 @@ public partial class prenota : System.Web.UI.Page
 
         PBuchi.Visible = false;
         pChart.Visible = false;
-        cbInfo.Visible = false;
+        bInfo.Visible = false;
 
         pRiepilogo.Visible = true;
         tRiepilogo.Visible = true;
@@ -557,7 +559,7 @@ public partial class prenota : System.Web.UI.Page
 		GW.DataBind();
 		pPrenota.Visible = false;
 
-        cbInfo.Visible = false;
+        bInfo.Visible = false;
 
         // 3) trovo l'elenco delle vetture disponibili con criterio (non già prenotate nelle date scelte)
         if (utenti.potere < 50)
@@ -638,7 +640,6 @@ public partial class prenota : System.Web.UI.Page
 			}
 		}
 	}
-
 	public void RiempiGrid(DataTable gwds) // veicoli disponibili
 	{
 		try
@@ -687,7 +688,6 @@ public partial class prenota : System.Web.UI.Page
             Stato("Riscontrato errore durante la ricerca dei mezzi disponibili. Errore: " + ex.ToString() + " Avvertire l'amministratore al n. " + (string)Session["assistenza"].ToString(), Color.Red);
 		}
 	}
-
 	public void RiempiDisponibili(DataTable gwds) // veicoli disponibili
 	{
 		try
@@ -728,7 +728,6 @@ public partial class prenota : System.Web.UI.Page
             Stato("Riscontrato errore durante la ricerca dei mezzi disponibili in ogni sede. Errore: " + ex.ToString() + " Avvertire l'amministratore al n. " + (string)Session["assistenza"].ToString(), Color.Red);
 		}
 	}
-
 	public void RiempiMissioni(DataTable gwds, int comando) // missioni
 	{
 		try
@@ -798,7 +797,7 @@ public partial class prenota : System.Web.UI.Page
 	}
 	protected void GW_SelectedIndexChanged(object sender, EventArgs e) // selezione veicoli disponibili
 	{
-        cbInfo.Visible = false;
+        bInfo.Visible = false;
 		int riga = GW.SelectedIndex;
 		GridViewRow row = GW.SelectedRow;
 		pre.mezzo_ek = GW.SelectedDataKey.Value.ToString();
@@ -821,9 +820,11 @@ public partial class prenota : System.Web.UI.Page
         }
         if (tbl != null && tbl.Rows.Count > 0 && idp.Trim() == "") // non è una modifica)
         {
-            int mp = 0;
+            int mp = 0, power = 0;
             int.TryParse(tbl.Rows[0]["max_prenotazioni"].ToString(), out mp); // una riga qualsiasi... in quanto per mi serve il numero max di prenotazioni della flotta
-            if (tbl.Rows.Count >= mp && (aid == ""))
+            int.TryParse(tbl.Rows[0]["Power"].ToString(), out power);
+
+            if (tbl.Rows.Count >= mp && (aid == "") && power < 100)
             {
                 pAcconsento.Visible = false;
                 tRiepilogo.Visible = true;
@@ -844,7 +845,6 @@ public partial class prenota : System.Web.UI.Page
 		trVeicolo.Visible = true;
 		CarPooling(0);
 	}
-
 	protected string virgolette(string s)
 	{
 		string ss = "";
@@ -859,7 +859,6 @@ public partial class prenota : System.Web.UI.Page
 		}
 		return (ss);
 	}
-
 	public void CarPooling(int contiene)
 	{
 		// ora devo vedere se ci sono altri che vanno nella stessa destinazione
@@ -896,7 +895,6 @@ public partial class prenota : System.Web.UI.Page
 			pGWDD.Visible = false;
 		}
 	}
-
 	protected void GWDD_SelectedIndexChanged(object sender, EventArgs e) // Missioni.... aggregazione in car pooling
 	{
 		int riga = GWDD.SelectedIndex;
@@ -942,11 +940,11 @@ public partial class prenota : System.Web.UI.Page
 		pGWPRE.Visible = false;
 		pConferma.Visible = true;
 		PImput.Visible = true; //initChartLibere();
-		Response.Redirect("pre.aspx?idp=" + Session["idp"].ToString());
+		Response.Redirect("pre.aspx?idp=" + Session["idp"].ToString());  // devo richiamare la pagina con altri dati
 	}
 	protected void GWPRE_RowDeleting(object sender, GridViewDeleteEventArgs e)
 	{
-        cbInfo.Visible = false;
+        bInfo.Visible = false;
         lccDestinazione.Text = GWPRE.Rows[e.RowIndex].Cells[5].Text;
 		lccPartenza.Text = GWPRE.Rows[e.RowIndex].Cells[2].Text;
 		//pre.id = GWPRE.SelectedDataKey[0].ToString(); // preservo id prenotazione da cancellare
@@ -966,7 +964,6 @@ public partial class prenota : System.Web.UI.Page
 		pConferma.Visible = true;
         Stato("ATTENZIONE: dopo la conferma della cancellazione, assicurarsi di eliminare il foglio di prenotazione in qualunque formato posseduto! (mail, cartaceo, file)", Color.Blue);
 	}
-
 	protected void GWPRE_RowDataBound(object sender, GridViewRowEventArgs e)
 	{
 		if (e.Row.Cells[2] != null)
@@ -1011,20 +1008,17 @@ public partial class prenota : System.Web.UI.Page
 		pConferma.Visible = false;
 		bmieprenotazioni_Click(this, e = new EventArgs());
 	}
-
 	protected void bUscita_Click(object sender, EventArgs e)
 	{
 		Session.Clear();
 		Session.Abandon();
 		Response.Redirect("Default.aspx");
 	}
-
 	protected void bhome_Click(object sender, EventArgs e)
 	{
 		Session.Add("idp", "");
 		Response.Redirect("Menu.aspx");
 	}
-
 	protected void ShowPopUpMsg(string msg)
 	{
 		StringBuilder sb = new StringBuilder();
@@ -1033,7 +1027,6 @@ public partial class prenota : System.Web.UI.Page
 		sb.Append("');");
 		ScriptManager.RegisterStartupScript(this.Page, this.GetType(), "showalert", sb.ToString(), true);
 	}
-
 	protected void bConferma_Click(object sender, EventArgs e)
 	{
         if (!checkSession()) Response.Redirect("default.aspx"); // ripristino idu e aid e utenti e verifico sessione ancora attiva
@@ -1114,7 +1107,7 @@ public partial class prenota : System.Web.UI.Page
 		{
 			if (cosastofacendo == "Prenotazione x altri" || cosastofacendo == "")
 			{
-				if (pre.Inserisci(aid.ToString()) != 1)
+				if (pre.Inserisci(aid.ToString()) < 1)
 				{
                     Stato("ATTENZIONE: si è verificato un\'errore durante l\'inserimento della prenotazione. Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Red);
 					return;
@@ -1129,7 +1122,7 @@ public partial class prenota : System.Web.UI.Page
 				s += "order by tempo desc ";
 				ds = FBConn.getfromDSet(s, "andata", out msg); // controllo se c'è una prenotazione oltre alla mia....
 
-				Int32 idu = Session["iduser"] != null ? Convert.ToInt32(Session["iduser"].ToString()) : -1;
+				idu = Session["iduser"] != null ? Convert.ToInt32(Session["iduser"].ToString()) : -1;
 				int rr = -1;
 				msg = "";
 				if (ds.Tables["andata"] != null && ds.Tables["andata"].Rows.Count > 1) // c'è già un'altra prenotazione
@@ -1163,7 +1156,7 @@ public partial class prenota : System.Web.UI.Page
 		bConferma.Visible = false;
 		string codice = idp;
 		idp = "";
-		if (cosastofacendo != "Modifica")
+		if (cosastofacendo != "Modifica") // si potrebbe risparmiare l'accesso... in quanto insert con returning id
 		{
 			ds = FBConn.getfromDSet(s, "prenotazioni", out msg);
 			// Solo dopo aver inserito e ricercato la prenotzione posso aggiungere la IDP ( a meno che non si tratti di una modifica )
@@ -1172,12 +1165,11 @@ public partial class prenota : System.Web.UI.Page
 		}
 		Response.Redirect("ConfermaPrenotazionedn.aspx?c=" + codice); // passo i dati della prenotazione alla pagina Conferma.aspx
 	}
-
 	protected void bModifica_Click(object sender, EventArgs e)
 	{
 		bElencoDisponibili.Visible = false;
 		pMezziDisponibili.Visible = false;
-        cbInfo.Visible = true;
+        bInfo.Visible = true;
 		PImput.Visible = true;	//initChartLibere();
 		bModifica.Visible = false;
 		bVerifica.Visible = true;
@@ -1191,16 +1183,14 @@ public partial class prenota : System.Web.UI.Page
 		pAcconsento.Visible = false;
 		sStato.Text = "";
 		cbFiltri.Visible = false;
-        cbInfo_CheckedChanged(this, new EventArgs());
+        bInfo_azione();
     }
-
 	protected void cbFiltriOnOff(object sender, EventArgs e)
 	{
 		cbFiltri.Text = (cbFiltri.Text == "Togli filtri ?") ? "Applica filtri" : "Togli filtri ?";
 		cbFiltri.Checked = false;
 		bVerifica_Click(this, new EventArgs());
 	}
-
 	protected void bmieprenotazioni_Click(object sender, EventArgs e)
 	{
         pGWDD.Visible = false;
@@ -1209,7 +1199,7 @@ public partial class prenota : System.Web.UI.Page
         PBuchi.Visible = false;
         pChart.Visible = false;
 		tRiepilogo.Visible = false;
-        cbInfo.Visible = false;
+        bInfo.Visible = false;
 		pPrenota.Visible = false;
 		pMezziDisponibili.Visible = false;
 		bElencoDisponibili.Visible = false;
@@ -1233,7 +1223,6 @@ public partial class prenota : System.Web.UI.Page
             Stato("ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"], Color.Red);
 			return;
 		}
-
 		if (ds != null && ds.Tables["sovrapposte"].Rows.Count > 0) // ci sono altre prenotazioni che si sovrappongono con quelle già effettute da quell'utente
 		{
 			// nella tabella visualizzo l'elenco delle prenotazioni sovrapposte
@@ -1250,7 +1239,6 @@ public partial class prenota : System.Web.UI.Page
 			return;
 		}
 	}
-
 	protected void CldInizio_SelectionChanged(object sender, EventArgs e)
 	{
 		//CldInizio.TodayDayStyle.BackColor = System.Drawing.Color.White;
@@ -1269,9 +1257,8 @@ public partial class prenota : System.Web.UI.Page
 		}
         idu = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
         //if (bInfo.Text == "Nascondi info grafica")
-        cbInfo_CheckedChanged(this, new EventArgs());
+        bInfo_azione();
     }
-
 	protected void CldFine_SelectionChanged(object sender, EventArgs e)
 	{
 		//CldFine.TodayDayStyle.BackColor = System.Drawing.Color.White;
@@ -1291,9 +1278,8 @@ public partial class prenota : System.Web.UI.Page
 		}
 		CldInizio.VisibleDate = CldInizio.SelectedDate;
 		CldFine.VisibleDate = CldFine.SelectedDate;
-        cbInfo_CheckedChanged(this, new EventArgs());
+        bInfo_azione();
     }
-
 	protected void ConfirmMsg(string msg)
 	{
 		/*StringBuilder sb = new StringBuilder();
@@ -1310,7 +1296,6 @@ public partial class prenota : System.Web.UI.Page
         ScriptManager.RegisterStartupScript(this.Page, this.GetType(), "showaconfirm", sc, true);
         */
 	}
-
 	public void Leggiddl(string tab, DropDownList ddl, bool primoblank) // devo leggere la tabella Proposta
 	{
 		msg = "";
@@ -1348,12 +1333,10 @@ public partial class prenota : System.Web.UI.Page
 			}
 		}
 	}
-
 	protected void bMyData_Click(object sender, EventArgs e)
 	{
 		Response.Redirect("mydatas.aspx?idu=" + utenti.iduser);
 	}
-
 	protected void Nuova_Click(object sender, EventArgs e)
 	{
 		pMezziDisponibili.Visible = false;
@@ -1362,12 +1345,10 @@ public partial class prenota : System.Web.UI.Page
 		Session.Add("idp", "");
 		Response.Redirect("pre.aspx");
 	}
-
 	protected void GW_Sorting(object sender, GridViewSortEventArgs e)
 	{
 		//ds = pre.mezzidisponibili(pre.user_ek.Trim(), pre.ubicazione_ek.Trim(), pre.dove_comune, pre.dove_prov_ek, pre.partenza, pre.arrivo, pre.dislivello, filtri, out msg);
 	}
-
 	protected void CldInizio_DayRender(object sender, DayRenderEventArgs e)
 	{
 		int strapotere = 0;
@@ -1376,7 +1357,6 @@ public partial class prenota : System.Web.UI.Page
 		if (e.Day.Date > DateTime.Now.AddDays(31) && strapotere < 50)
 			e.Day.IsSelectable = false;
 	}
-
 	protected void CldFine_DayRender(object sender, DayRenderEventArgs e)
 	{
 		int strapotere = 0;
@@ -1384,7 +1364,6 @@ public partial class prenota : System.Web.UI.Page
         if (e.Day.Date > DateTime.Now.AddDays(31 + 3) && strapotere < 50)
 			e.Day.IsSelectable = false;
 	}
-
 	protected void bElencoDisponibili_Click(object sender, EventArgs e)
 	{
         PBuchi.Visible = false;
@@ -1397,7 +1376,7 @@ public partial class prenota : System.Web.UI.Page
 		cbAcconsento.Visible = false;
 		bConferma.Visible = false;
         pConferma.Visible = false;
-        cbInfo.Visible = false;
+        bInfo.Visible = false;
 
 		msg = "";
 		dtinizio = new DateTime(CldInizio.SelectedDate.Year, CldInizio.SelectedDate.Month, CldInizio.SelectedDate.Day, ddlOrainizio.SelectedIndex, ddlMininizio.SelectedIndex * 5, 0);
@@ -1429,7 +1408,6 @@ public partial class prenota : System.Web.UI.Page
             pChart.Visible = false;
 		}
 	}
-
 	protected void initChartLibere(string utente)
 	{
 		cLibere.Visible = true; lnota.Visible = true;
@@ -1490,7 +1468,7 @@ public partial class prenota : System.Web.UI.Page
 			int[] numero = new int[giorni];
 			String[] dates = new String[giorni];
 			for (int i = 0; i < giorni; i++) { numero[i] = 0; }// inizializzo
-			string s; //int y, m, d, H, min, sec;
+			 //int y, m, d, H, min, sec;
 			DateTime dd, ad, oggi = dada;
 			string[] gio = { "dom", "lun", "mar", "mer", "gio", "ven", "sab" };
 			for (int gg = 0; gg < giorni; gg++)
@@ -1553,20 +1531,17 @@ public partial class prenota : System.Web.UI.Page
             Stato("Tutti gli automezzi della sede sono liberi!", Color.Black);
 		}
 	}
-
     protected void Stato(string msg, Color c)
     {
         if (c == null) c = Color.Black;
         sStato.ForeColor = c;
         sStato.Text = msg;
     }
-
     public string Right(string str, int length)
 	{
 		str = (str ?? string.Empty);
 		return (str.Length >= length) ? str.Substring(str.Length - length, length) : str;
 	}
-
     public void BuchiShow(string utente)
     {
         //tHeader.Visible = false;
@@ -1716,8 +1691,11 @@ public partial class prenota : System.Web.UI.Page
         else
             PBuchi.Visible = false;
     }
-
-    protected void cbInfo_CheckedChanged(object sender, EventArgs e)
+    protected void CldInizio_VisibleMonth(object sender, MonthChangedEventArgs e)
+    {
+        bInfo_azione();
+    }
+    protected void bInfo_Click(object sender, EventArgs e)
     {
         if (!checkSession())  // ripristino idu, aid e carico dati user
         {
@@ -1725,11 +1703,27 @@ public partial class prenota : System.Web.UI.Page
             ShowPopUpMsg(s);
             Response.Redirect("default.aspx?session=0");
         }
-        if (cbInfo.Checked)
+        if (bInfo.Text == "Visualizza infografica")
         {
             idu = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
             initChartLibere(idu.ToString());
-            BuchiShow(idu.ToString());              
+            BuchiShow(idu.ToString());
+            bInfo.Text = "Nascondi infografica";
+        }
+        else
+        {
+            bInfo.Text = "Visualizza infografica";
+            pChart.Visible = false;
+            PBuchi.Visible = false;
+        }
+    }
+    protected void bInfo_azione()
+    {
+        if (bInfo.Text == "Nascondi infografica")
+        {
+            idu = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
+            initChartLibere(idu.ToString());
+            BuchiShow(idu.ToString());
         }
         else
         {
@@ -1737,9 +1731,8 @@ public partial class prenota : System.Web.UI.Page
             PBuchi.Visible = false;
         }
     }
-
-    protected void CldInizio_VisibleMonth(object sender, MonthChangedEventArgs e)
+    protected void lbHelp_Click(object sender, EventArgs e)
     {
-        cbInfo_CheckedChanged(this, new EventArgs());
+        Response.Redirect("doc\\modifica_mail.pdf", false);
     }
 }

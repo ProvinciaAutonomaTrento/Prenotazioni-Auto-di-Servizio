@@ -16,13 +16,11 @@
  * along with Pitre.If not, see<https://www.gnu.org/licenses/lgpl.html>.
  * 
  */
-
 using System;
 using System.Web.UI;
 using System.Data;
 using System.Text;
 using System.Drawing;
-
 public partial class aiutoguidarifornimento : System.Web.UI.Page
 {
     public ConnessioneFB FBConn = new ConnessioneFB();
@@ -32,7 +30,6 @@ public partial class aiutoguidarifornimento : System.Web.UI.Page
     public static user utenti = new user();
     public Color rosso = Color.Red;
     public Color nero = Color.Black;
-
     protected void Page_Load(object sender, EventArgs e)
     {
         if (!Page.IsPostBack)  // SOLO LA PRIMA VOLTA CHE CARICO LA PAGINA.... vedi comando in accessi o altro

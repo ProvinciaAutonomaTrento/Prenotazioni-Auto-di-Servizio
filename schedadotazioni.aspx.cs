@@ -92,14 +92,14 @@ public partial class schedadotazioni : System.Web.UI.Page
             msg = "";
             ds.Clear();
             string s, where; int i = ddl.SelectedIndex;
-            s = "update  set dotazione=\'" + tTesto.Text + "\', abilitato=" + (cbAbilitata.Checked ? "1" : "0");
+            s = "update dotazione set dotazione=\'" + tTesto.Text + "\', abilitato=" + (cbAbilitata.Checked ? "1" : "0");
             where = " where id=" + ddl.SelectedValue;
             Int32 rr = FBConn.EsegueCmd(s + where, out msg);
 			if (rr == 1)
 			{
 				sStato.Text = "Operazione salvataggio dati andata a buon fine.";
 				id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-				CLogga.logga("dotazioni", s + where, 2, "Modifica dotazioni", id, out msgl);
+				CLogga.logga("dotazioni", s + where, 2, "Modifica dotazioni", id.ToString(), ddl.SelectedValue.ToString(), out msgl);
 			}
 			else
 				sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
@@ -135,14 +135,14 @@ public partial class schedadotazioni : System.Web.UI.Page
                 }
                 else //posso inserire nuova sede
                 {
-                    s = "insert into dotazione (id, dotazione, abilitato) values (null, \'" + tTesto.Text + "\', " + (cbAbilitata.Checked ? "1" : "0") + ")";
+                    s = "insert into dotazione (id, dotazione, abilitato) values (null, \'" + tTesto.Text + "\', " + (cbAbilitata.Checked ? "1" : "0") + ")  returning id ";
                     msg = "";
-                    Int32 rr = FBConn.EsegueCmd(s, out msg);
-                    if (rr == 1)
+                    Int32 rr = FBConn.AddCmd(s, out msg);
+                    if (rr > 0)
                     {
                         sStato.Text = "Operazione inserimento dati andata a buon fine.";
 						id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-						CLogga.logga("dotazioni", s, 1, "Insert dotazioni", id, out msgl);
+                        CLogga.logga("dotazioni", s, 1, "Insert dotazioni", id.ToString(), rr.ToString(), out msgl);
 						Leggiddl();
                         Caricadatiddl(ddl.SelectedValue.ToString());
                     }
@@ -171,15 +171,14 @@ public partial class schedadotazioni : System.Web.UI.Page
             msg = "";
             Int32 rr = FBConn.EsegueCmd(s + where, out msg);
 
-			if (rr != 1)
+			if (rr == 1)
 			{
-				sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
 				id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-				CLogga.logga("dotazioni", s + where, 3, "Cancella dotazioni", id, out msgl);
-			}
+				CLogga.logga("dotazioni", s + where, 3, "Cancella dotazioni", id.ToString(), ddl.SelectedValue.ToString(), out msgl);
+                sStato.Text = "Cancellazione di " + tTesto.Text + " avvenuta con successo!";
+            }
 			else
-				sStato.Text = "Cancellazione di " + tTesto.Text + " avvenuta con successo!";
-
+                sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
             Leggiddl();
             Caricadatiddl(ddl.SelectedValue.ToString());
         }

@@ -225,7 +225,7 @@ public partial class schedaveicolo : System.Web.UI.Page
 			{
 				sStato.Text = "Modifica eseguita!";
 				idu = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-				CLogga.logga("mezzi", s, 2, "Modifica mezzi", idu, out msgl);
+				CLogga.logga("mezzi", s, 2, "Modifica mezzi", idu.ToString(), ddlMezzi.SelectedValue.ToString(), out msgl);
 			}
 			else
 			{
@@ -326,14 +326,14 @@ public partial class schedaveicolo : System.Web.UI.Page
                     s = "insert into mezzi (id, targa, marca_ek, modello_ek, cavalli, kilowat, portata, euro, alimentazione_ek, colore, dotazione1_ek, dotazione2_ek, dotazione3_ek, ubicazione_ek, ritirochiavi_ek, numero, dotazioni, descrizione, abilitato, blackbox, trazione_ek, gomme_EK, classificazione_EK, cambio_EK, scadenza, posti, posteggio" + sqlfoto + ") values (null, ";
                     s += "\'" + tTarga.Text + "\', \'" + ddlProduttore.SelectedValue + "\', \'" + ddlModello.SelectedValue + "\', \'" + (tCavalli.Text.Trim() == "" ? "0" : tCavalli.Text.Trim()) + "\', \'0\', \'" + ( tPortata.Text.Trim() == "" ? "0" : tPortata.Text.Trim() ) + "\', \'" + ddlEuro.SelectedValue + "\', \'" + ddlAlimentazione.SelectedValue + "\'";
                     s += ", \'" + tColore.Text + "\', \'" + ddlDotazione1.SelectedValue + "\', \'" + ddlDotazione2.SelectedValue + "\', null, \'" + ddlPosteggio.SelectedValue + "\', \'" + ddlRitiro.SelectedValue + "\', \'" + tNumero.Text + "\', \'\', \'" + tDescrizione.Text + "\', " + (cbAbilitata.Checked ? "1" : "0") + ", " + (cbBlackBox.Checked ? "1" : "0") + ", \'" + ddlTrazione.SelectedValue + "\'";
-                    s += ", \'" + ddlGomme.SelectedValue + "\', \'" + ddlCla.SelectedValue + "\', \'" + ddlCambio.SelectedValue + "\', cast(\'" + dt.Year.ToString() + "/" + dt.Month.ToString() + "/" + dt.Day.ToString() + "\' as date), \'" + ddlPosti.SelectedValue + "\', '" + posteggio.ToString().Trim() + "\'" +  sqlvalue + ")";
+                    s += ", \'" + ddlGomme.SelectedValue + "\', \'" + ddlCla.SelectedValue + "\', \'" + ddlCambio.SelectedValue + "\', cast(\'" + dt.Year.ToString() + "/" + dt.Month.ToString() + "/" + dt.Day.ToString() + "\' as date), \'" + ddlPosti.SelectedValue + "\', '" + posteggio.ToString().Trim() + "\'" +  sqlvalue + ")  returning id ";
                     msg = "";
                     string id = "";
-                    Int32 rr = FBConn.EsegueCmd(s, out msg);
-                    if (rr == 1) // devo cambiare il contenuto dei due campi foto1 e foto2 e il nome dei due file foto
+                    Int32 rr = FBConn.AddCmd(s, out msg);
+                    if (rr > 0) // devo cambiare il contenuto dei due campi foto1 e foto2 e il nome dei due file foto
                     {
 						idu = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-						CLogga.logga("mezzi", s, 1, "Insert mezzi", idu, out msgl);
+						CLogga.logga("mezzi", s, 1, "Insert mezzi", idu.ToString(), rr.ToString(), out msgl);
 
 						s = "select id, libretto, foto1, foto2, foto3 from mezzi where targa=\'" + tTarga.Text.Trim() + "\'"; // se serve....
                         ds.Clear();
@@ -413,7 +413,7 @@ public partial class schedaveicolo : System.Web.UI.Page
             else
                 sStato.Text = "Cancellazione di " + tTarga.Text + " - " + tNumero.Text + " avvenuta con successo!";
 			idu = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-			CLogga.logga("mezzi", s + where, 3, "Delete mezzi", idu, out msgl);
+			CLogga.logga("mezzi", s + where, 3, "Delete mezzi", idu.ToString().ToString(), tTarga.Text, out msgl);
 			LeggiAutomezzi();
             LeggiTarga();
             LeggiNumero();
@@ -444,7 +444,7 @@ public partial class schedaveicolo : System.Web.UI.Page
                 ddlMezzi.Items.Clear();
                 if (ds.Tables["mezzicerca"].Rows.Count > 0)
                 {
-                    string s = "", ss = "";
+                    s = ""; string ss = "";
                     for (int i = 0; i < ds.Tables["mezzicerca"].Rows.Count; i++)
                     {
                         s = ds.Tables["mezzicerca"].Rows[i]["marca"] == DBNull.Value ? "" : ds.Tables["mezzicerca"].Rows[i]["marca"].ToString();

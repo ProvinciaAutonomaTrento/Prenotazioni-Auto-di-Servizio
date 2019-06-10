@@ -63,7 +63,6 @@ public partial class segreteria : System.Web.UI.Page
 			//pElenco.Visible = true;
 		}
     }
-
 	private bool checkSession()
 	{
 		idu = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
@@ -80,7 +79,6 @@ public partial class segreteria : System.Web.UI.Page
 		Session.Add("strapotere", utenti.potere);
 		return (true);
 	}
-
 	public void Leggiddl(string select, DropDownList ddl)
 	{
 		// devo leggere la tabella cambio
@@ -162,7 +160,6 @@ public partial class segreteria : System.Web.UI.Page
             }
         }
     }
-
     public void LeggiTarga()
     {
         // ddltarga
@@ -192,7 +189,6 @@ public partial class segreteria : System.Web.UI.Page
                 sStato.Text = "ATTENZIONE: si è verificato un\'errore: non ci sono occorrenze nella tabella AUTOMEZZI. Contattare l'assistenza al numero " + (string)Session["assistenza"];
         }
     }
-
     public void LeggiNumero()
     {
         // ddltarga
@@ -222,7 +218,6 @@ public partial class segreteria : System.Web.UI.Page
                 sStato.Text = "ATTENZIONE: si è verificato un\'errore: non ci sono occorrenze nella tabella AUTOMEZZI. Contattare l'assistenza al numero " + (string)Session["assistenza"];
         }
     }
-
     protected void ShowPopUpMsg(string msg)
     {
         StringBuilder sb = new StringBuilder();
@@ -231,7 +226,6 @@ public partial class segreteria : System.Web.UI.Page
         sb.Append("');");
         ScriptManager.RegisterStartupScript(this.Page, this.GetType(), "showalert", sb.ToString(), true);
     }
-
     protected void bUscita_Click(object sender, EventArgs e)
     {
         Session.Clear();
@@ -242,7 +236,6 @@ public partial class segreteria : System.Web.UI.Page
 	{
 		Cerca(sender, e, "partenza", "DESC");
 	}
-
 	protected void Cerca(object sender, EventArgs e, string colonna="partenza", string ordine="DESC")
     {
 		if (colonna == null || colonna == "") colonna = "a.partenza";
@@ -285,14 +278,12 @@ public partial class segreteria : System.Web.UI.Page
 			Session.Timeout = 30; // ritacco il conteggio!!!
 			Session.Add("strapotere", utenti.potere);
 		}
-
 		tbl = pre.PrenotazioniGerarchiche("", dti, dtf, tNome.Text, tCognome.Text, "", tMatricola.Text, ddlUbi.SelectedValue.Trim(), ddlTarga.SelectedItem.Text.Trim(), ddlNumero.SelectedItem.Text.Trim(), utenti.struttura_cod.Trim(), utenti.dipendeda_ek.Trim(), out qry, out msg); // mi ritorna le prenotazione sino a 365gg fa
         if (msg != null && msg != "")
         {
             sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
             return;
         }
-
 		if (tbl != null && tbl.Rows.Count > 0) // ci sono altre prenotazioni che si sovrappongono con quelle già effettute da quell'utente
 		{
 			Session.Add("qry", qry);
@@ -310,14 +301,12 @@ public partial class segreteria : System.Web.UI.Page
 			bnuova.Visible = false;
 		}
     }
-
     private void piallatext()
     {
         tMatricola.Text = "";
         tNome.Text = "";
         tCognome.Text = "";
     }
-
     public bool RiempiPrenotazioni(DataTable gwpre, string colonna = "numero", string ordine="ASC")
     {
 		if (colonna == null || colonna == "")
@@ -371,7 +360,6 @@ public partial class segreteria : System.Web.UI.Page
         gwPrenotazioni.Visible = true;
         return (true);
     }
-
     protected void gPrenotazioni_SelectedIndexChanged(object sender, EventArgs e)
     {
         int key = gwPrenotazioni.SelectedValue != null ? Convert.ToInt32(gwPrenotazioni.SelectedValue.ToString()) : -1;
@@ -393,7 +381,6 @@ public partial class segreteria : System.Web.UI.Page
         gwPrenotazioni.Visible = false;
         Response.Redirect("pre.aspx?idp=" + key.ToString());
     }
-
     protected void cbReset_Click(object sender, EventArgs e)
     {
         piallatext();
@@ -406,7 +393,6 @@ public partial class segreteria : System.Web.UI.Page
 		cldA.TodaysDate = DateTime.Now;
 		cldA.SelectedDates.Clear();
 	}
-
 	protected void bnuova_Click(object sender, EventArgs e)
 	{
 		piallatext();
@@ -414,15 +400,13 @@ public partial class segreteria : System.Web.UI.Page
 		gwPrenotazioni.Visible = false;
 		bnuova.Visible = false;
 	}
-
 	protected void cbhome_Click(object sender, EventArgs e)
 	{
 		gwPrenotazioni.Visible = true;
 		cbcConferma.Visible = false;
         tRiepilogo.Visible = false;
         Panel1.Visible = true;
-    }
-	
+    }	
 	protected void gwPrenotazioni_Sorting(object sender, GridViewSortEventArgs e)
 	{
 		string qry = Session["qry"].ToString() != null && Session["qry"].ToString() != "" ? Session["qry"].ToString() : "";
@@ -434,12 +418,10 @@ public partial class segreteria : System.Web.UI.Page
 		}
 		//Cerca(this, e, e.SortExpression, "DESC");
 	}
-
 	protected void bSalvacsv_Click(object sender, EventArgs e)
 	{
 
 	}
-
     protected void cbOggi_Click(object sender, EventArgs e)
     {
         DateTime dti = DateTime.Now.Date;
@@ -450,7 +432,6 @@ public partial class segreteria : System.Web.UI.Page
         checkSession();
         Cerca(sender, e, "partenza", "DESC");
     }
-
     protected void cbRapido_Command(object sender, CommandEventArgs e)
     {
         checkSession();
@@ -485,7 +466,6 @@ public partial class segreteria : System.Web.UI.Page
         }
         Cerca(sender, e, "partenza", "DESC");
     }
-
     protected void cbcCancella_Click(object sender, EventArgs e)
     {
         // Cerco la prenotazione, carico i dati in tbl
@@ -549,7 +529,6 @@ public partial class segreteria : System.Web.UI.Page
         Panel1.Visible = true;
         bnuova_Click(this, e = new EventArgs());
     }
-
     protected void gwPrenotazioni_RowDeleting(object sender, GridViewDeleteEventArgs e)
     {
         gwPrenotazioni.Visible = false;
@@ -580,7 +559,6 @@ public partial class segreteria : System.Web.UI.Page
         cbcConferma.Visible = true;
         sStato.Text = "";
     }
-
     protected void gwPrenotazioni_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.Cells[2] != null)

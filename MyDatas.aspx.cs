@@ -86,7 +86,8 @@ public partial class MyDatas : System.Web.UI.Page
 						ddlStruttura.Visible = true;
 						tEnte.Visible = false;
 					}
-					tIndirizzo.Text = utente.indirizzo;
+                    if (ddlStruttura.SelectedValue != "") { ddlStruttura.Enabled = false; cbnoninelenco.Enabled = false; }
+                    tIndirizzo.Text = utente.indirizzo;
 					tCivico.Text = utente.civico;
 					tCap.Text = utente.cap;
 					tCitta.Text = utente.città;
@@ -168,12 +169,11 @@ public partial class MyDatas : System.Web.UI.Page
 		if (tCap.Text.Trim().Length < 5) er += "Cap ";
 		if (tCitta.Text.Trim().Length < 2) er += "Città almeno 2 caratteri; ";
 		if (tTelefono.Text.Trim().Length < 8) er += "Telefono almeno 8 caratteri; ";
-		//if (tTelefono.Text.IndexOf(" ") > 0) er += "Telefono: solo numeri senza spazi; ";
 		if (!cbConsenso.Checked) er += "Consenso al trattamento; ";
 
 		if (er != "")
 		{
-			er = "Verificare la consistenza dei campi indicati. Dati errati o mancanti: " + er;
+			er = "Verificare la consistenza dei campi indicati: " + er;
 			Stato(er, rosso);
 			return;
 		}
@@ -198,6 +198,7 @@ public partial class MyDatas : System.Web.UI.Page
 		utente.cap = tCap.Text.Trim();
 		utente.città = tCitta.Text.Trim();
 		utente.telefono = tTelefono.Text.Trim();
+        utente.cell = tCell.Text.Trim();
 		if (cbnoninelenco.Checked)
 		{
 			utente.ente = tEnte.Text;
@@ -220,7 +221,8 @@ public partial class MyDatas : System.Web.UI.Page
 
 		if (cbRegistrati.Text == "Salva") // è una modifica
 		{
-			bool ok = utente.registradatiutente(out msg);
+            string maker = Session["iduser"] != null ? Session["iduser"].ToString() : "";
+            bool ok = utente.registradatiutente(maker,out msg);
 			if (!ok)
 			{
 				Stato("Modifiche non apportate. Problemi ricerca utente o sessione scaduta.", rosso);
@@ -291,13 +293,14 @@ public partial class MyDatas : System.Web.UI.Page
 						gm.body = "Buongiorno,\n";
 						gm.body += "la informiamo che la richiesta di accesso all\'applicazione \"Prenotazioni autoveicoli di servizio\" è stata inoltrata correttamente.\n";
 						gm.body += "Richiedente:\n";
-						gm.body += "Username:          \t" + utente.nikname + "\n";
-						gm.body += "Nome:              \t" + utente.nome + "\n";
-						gm.body += "Cognome:           \t" + utente.cognome + "\n";
-						gm.body += "Mail:              \t" + utente.mail + "\n";
-						gm.body += "Tel.:              \t" + utente.telefono + "\n\n\n";
-						gm.body += "Dopo l'approvazione, riceverà automaticamente la mail con le credenziali per l'accesso.\n\n\tGrazie.\n\nUff. Gestioni Generali\nGestore autorizzazioni";
-						if (!gm.mandamail("", 0, "", "", out msg))
+						gm.body += "Username:\t\t" + utente.nikname + "\n";
+						gm.body += "Nome:    \t\t" + utente.nome + "\n";
+						gm.body += "Cognome: \t\t" + utente.cognome + "\n";
+						gm.body += "Mail:    \t\t" + utente.mail + "\n";
+						gm.body += "Tel.:    \t\t" + utente.telefono + "\n\n\n";
+						gm.body += "Dopo l'approvazione, riceverà automaticamente la mail con le credenziali per l'accesso.\n\n\tGrazie.\n\nUff. Gestioni Generali\nGestore autorizzazioni\n\n\n";
+                        gm.body += "La presente mail e\' stata inviata da un sistema automatizzato. Non saranno prese in considerazione mail di sisposta.\n\n\n";
+                        if (!gm.mandamail("", 0, "", "", out msg))
 						{
 							Stato("Richiesta di registrazione non eseguita! MAIL DI CONFERMA NON INOLTRATA!. CONTATTARE IL NUMERO " + (string)Session["assistenza"] + " Err: " + msg, rosso);
 							//ShowPopUpMsg("Richiesta di registrazione effettuata con successo, MAIL DI CONFERMA NON INOLTRATA!. CONTATTARE IL NUMERO " + (string)Session["assistenza"] + " Err: " + msg);
@@ -331,6 +334,7 @@ public partial class MyDatas : System.Web.UI.Page
 		tCitta.Enabled = cosa;
 		tCap.Enabled = cosa;
 		tTelefono.Enabled = cosa;
+        tCell.Enabled = cosa;
 		cbConsenso.Enabled = cosa;
 		ddlStruttura.Enabled = cosa;
 		cbnoninelenco.Enabled = cosa;

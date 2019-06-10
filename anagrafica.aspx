@@ -273,13 +273,15 @@
                 <td class="col1">&nbsp;</td>
                 <td class="col1">&nbsp;</td>
                 <td class="col3" colspan="3" style="text-align: center;">
-                    <asp:Button ID="cbSetPwd" runat="server" Text="Set Password" Align="center" BackColor="#FFB94F" Width="150px" EnableTheming="True" OnClick="cbSetPwd_Click"   UseSubmitBehavior="False"  Style="float: left;"/>
-                    <asp:TextBox ID="tpassword" runat="server" Width="200px" ></asp:TextBox>
+                <asp:Panel ID="pPwd" runat="server" Visible="false" BackColor="YellowGreen" Style ="padding: 10px">
+                    <asp:Button ID="cbSetPwd" runat="server" Text="Set Password" Align="center" BackColor="#FFB94F" Width="150px" Height="30px" EnableTheming="True" OnClick="cbSetPwd_Click"   UseSubmitBehavior="False"  Style="float: left;"/>
+                    <asp:TextBox ID="tpassword" runat="server" Width="200px" Height="26px" ></asp:TextBox>
+                    <br />
+                    <asp:CheckBox ID="chForza" runat="server" Text="Forza cambio password al prossimo accesso " TextAlign="Left" style="clear:both; padding-top: 15px; text-align:left;"/>
+                </asp:Panel>               
                 </td>
                 <td class="col1">&nbsp;</td>
             </tr>
-
-
             <tr>
                 <td class="col1"></td>
                 <td class="col1"></td>
@@ -292,7 +294,7 @@
     </div>
 
     <div style="clear: both; margin: 0px auto;">
-    <asp:Panel ID="pElenco" runat="server" Visible="true" style="float: left; margin: 0px auto;">
+    <asp:Panel ID="pElenco" runat="server" Visible="true" style="margin: 0px auto;">
         <div style="margin: 0px auto; padding-top: 7px">
         <asp:GridView ID="gElenco" runat="server"  AutoPostBack="true" AutoGenerateColumns="false" Visible="false"
             DataKeyNames="id" PageSize="999" ShowHeaderWhenEmpty="True" HorizontalAlign="Center"

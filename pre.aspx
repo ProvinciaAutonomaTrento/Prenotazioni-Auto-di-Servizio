@@ -54,7 +54,7 @@
 <br />
 <div class="clb"></div>
 <div class="titolo">PRENOTAZIONE AUTOMEZZI</div>
-<div class="news">NEWS: SONO STATE ATTIVATE LE COLONNINE DI RICARICA ELETTRICA NELLA ZONA DEL PRIMIERO. <a href = "data/stazioniricaricaprimiero.png" target="_blank">QUI L&#39;ELENCO DELLE STAZIONI</a ></div>
+<div class="news">NEWS: ELENCO COLONNINE DI RICARICA ELETTRICA: <a href = "data/PrimieroeTrentiino.pdf" target="_blank">QUI L&#39;ELENCO DELLE STAZIONI</a ></div>
 <div style="width: 1024px;  margin: 0px auto; ">
 <div style="text-align: left; width: 100px; float: left;">
     <a href = "data/20181204_Prenotazione.pdf" target="_blank">Istruzioni</a ></div>
@@ -145,10 +145,13 @@
         <WeekendDayStyle BackColor="#FFFFCC" />
         </asp:Calendar>
     </div>
-    <div class="nomecampo" style="width: 70px;">ora fine</div>
-    <div style="width: 55px; vertical-align: Top; text-align: right; float: left;  "><asp:DropDownList ID="ddlOrafine" runat="server" OnSelectedIndexChanged="ddlOraInizio_SelectedIndexChanged" Width="55" ToolTip="Scegliere l'ora di fine missione"></asp:DropDownList></div>
-    <div style="width: 5px; vertical-align: Top; text-align: center; float: left;  ">:</div>
-    <div style="width: 55px; vertical-align: Top; text-align: left; float: left;  "><asp:DropDownList ID="ddlMinfine" runat="server" OnSelectedIndexChanged="ddlMinInizio_SelectedIndexChanged" Width="55" ToolTip="Scegliere i minuti di fine missione"></asp:DropDownList></div>
+    <div style="float:left; width:190px;">
+        <div class="nomecampo" style="width: 60px; padding-right:5px;">ora fine</div>
+        <div style="width: 55px; vertical-align: Top; text-align: right; float: left;  "><asp:DropDownList ID="ddlOrafine" runat="server" OnSelectedIndexChanged="ddlOraInizio_SelectedIndexChanged" Width="55" ToolTip="Scegliere l'ora di fine missione"></asp:DropDownList></div>
+        <div style="width: 5px; vertical-align: Top; text-align: center; float: left;  ">:</div>
+        <div style="width: 55px; vertical-align: Top; text-align: left; float: left;"><asp:DropDownList ID="ddlMinfine" runat="server" OnSelectedIndexChanged="ddlMinInizio_SelectedIndexChanged" Width="55" ToolTip="Scegliere i minuti di fine missione"></asp:DropDownList></div>
+        <asp:Label ID="lZero" runat="server" width="188" visible="true" text="ATTENZIONE: le ore 00:00 indicano l'inizio del giorno!" Style="clear:both; padding:5px; background-color:crimson; color:aliceblue; border-radius:4px;"></asp:Label>
+    </div>
 </div>
 <div class="clb hrbianca"></div><div class="clb hrbianca"></div>
 <div style="width: 1024px; margin: 0px auto;background-color: white; padding: 0px;">
@@ -179,12 +182,14 @@
     <asp:Button ID="bVerifica" runat="server" width="250px" Text="Verifica richiesta" onclick="bVerifica_Click"
         ToolTip="Dopo aver inserito i dati della richiesta, viene verifacata la disponibilità di automezzi idonei per la missione"/>
     <asp:Button ID="bModifica" runat="server" width="250px" Text="Modifica" OnClick="bModifica_Click" visible ="false"
-        ToolTip="Modificare i dati della richiesta"/>
+        ToolTip="Modificare i dati della richiesta" Style="right:right;"/>
+    <span style="width:10px; float:left;"></span>
+    <asp:Button ID="bInfo" runat="server" Text="Visualizza infografica" OnClick="bInfo_Click" 
+        ToolTip=" Visualizza informazioni relative alla disponibilità dei veicoli per sede e alla distribuzione delle prenotazioni nel giorno della partenza."/> 
+    <%--<asp:linkbutton ID="lHelp" runat="server" text="Help infografica" OnClick="lbHelp_Click" Style="float: right;"></asp:linkbutton>  --%>
+    <a href="data\infografica.pdf" target="_blank" Style="float: right;">Help infografica</a>
     <asp:Button ID="bElencoDisponibili" runat="server" Text="Elenco veicoli disponibili in altre sedi" onclick="bElencoDisponibili_Click" Visible="false" 
         ToolTip="Verificare la disponibilità di veicoli idonei eventualmenmte disponibili in sedi diverse da quella selezionata"/>
-    <asp:CheckBox ID="cbInfo" runat="server" OnCheckedChanged="cbInfo_CheckedChanged" autopostback="true" Text="Visualizza infografica" 
-        style="align-content:flex-end; width: 244px;"
-        ToolTip=" Visualizza informazioni relative alla disponibilità dei veicoli per sede e alla distribuzione delle prenotazioni nel giorno della partenza."/>    
 </div>
 
 <div class="clb hrbianca"></div>
@@ -228,7 +233,7 @@
         </asp:TableRow>
         <asp:TableRow runat="server" HorizontalAlign="Left">
             <asp:TableCell runat="server" Width="10px"></asp:TableCell>
-            <asp:TableCell runat="server">sede ritiro chiavi:</asp:TableCell>
+            <asp:TableCell runat="server">sede ritiro veicolo:</asp:TableCell>
             <asp:TableCell runat="server"></asp:TableCell>
             <asp:TableCell runat="server"><asp:Label ID="lRitiro" runat="server"></asp:Label></asp:TableCell>
             <asp:TableCell runat="server"></asp:TableCell>
@@ -435,7 +440,7 @@
         </asp:TableRow>
         <asp:TableRow runat="server" HorizontalAlign="Left">
             <asp:TableCell runat="server" Width="10px"></asp:TableCell>
-            <asp:TableCell runat="server">sede ritiro chiavi:</asp:TableCell>
+            <asp:TableCell runat="server">sede ritiro veicolo:</asp:TableCell>
             <asp:TableCell runat="server"></asp:TableCell>
             <asp:TableCell runat="server"><asp:Label ID="lccUbi" runat="server"></asp:Label></asp:TableCell>
             <asp:TableCell runat="server"></asp:TableCell>

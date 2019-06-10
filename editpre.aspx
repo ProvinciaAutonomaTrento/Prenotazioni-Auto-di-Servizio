@@ -163,7 +163,7 @@
 <div class="hrbianca"></div>
 
 <div id="sfondo" class="container" style="clear:both; margin: 0px auto; width: 1350px; text-align: center; background-color:cornsilk; border-width: 6px; border-radius: 4px; height:auto; box-sizing: border-box; ">
-    <asp:Panel ID="pFiltro" runat="server">
+    <asp:Panel ID="pFiltro" runat="server" DefaultButton="cbCerca">
     <div id="colonna1" style="float:left; width: 430px; height: auto; margin-left: 200px;">
         <div style="padding-left:10px; margin: 0px auto; border-radius: 6px;">
         <table border="0" style="border: medium solid #1F5DB2; border-radius: 6px; padding: 10px; box-sizing:padding-box;">
@@ -420,7 +420,7 @@
                 <ItemTemplate>
                     <asp:Button runat="Server" align="left" ButtonType="Button" SelectText="Modifica" ShowSelectButton="True" Text="Modifica" CommandName="select"></asp:Button>
                 </ItemTemplate>
-            </asp:TemplateField> 
+            </asp:TemplateField>
             <asp:TemplateField HeaderText="Cancella" HeaderStyle-HorizontalAlign="left"><ItemStyle Width="75px" HorizontalAlign="left" Wrap="false"/>
                 <ItemTemplate>
                     <asp:Button runat="Server" align="left" ButtonType="Button" SelectText="Cancella" ShowDeleteButton="True" Text="Cancella" CommandName="delete"></asp:Button>

@@ -102,7 +102,7 @@ public partial class schedatrazione : System.Web.UI.Page
 			{
 				sStato.Text = "Operazione salvataggio dati andata a buon fine.";
 				id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-				CLogga.logga("trazione", s + where, 2, "Modifica trazione", id, out msgl);
+				CLogga.logga("trazione", s + where, 2, "Modifica trazione", id.ToString(), ddl.SelectedValue.ToString(), out msgl);
 			}
             else
                 sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg +". Contattare l'assistenza al numero " + (string)Session["assistenza"];
@@ -138,14 +138,14 @@ public partial class schedatrazione : System.Web.UI.Page
                 }
                 else //posso inserire nuova sede
                 {
-                    s = "insert into trazione (id, trazione, abilitato, rischio) values (null, \'" + tTesto.Text + "\', " + (cbAbilitata.Checked ? "1" : "0") + ", " + ddlSicurezza.SelectedValue + ")";
+                    s = "insert into trazione (id, trazione, abilitato, rischio) values (null, \'" + tTesto.Text + "\', " + (cbAbilitata.Checked ? "1" : "0") + ", " + ddlSicurezza.SelectedValue + ")  returning id ";
                     msg = "";
-                    Int32 rr = FBConn.EsegueCmd(s, out msg);
-                    if (rr == 1)
+                    Int32 rr = FBConn.AddCmd(s, out msg);
+                    if (rr > 0)
                     {
                         sStato.Text = "Operazione inserimento dati andata a buon fine.";
 						id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-						CLogga.logga("trazione", s, 1, "Inserimento trazione", id, out msgl);
+						CLogga.logga("trazione", s, 1, "Inserimento trazione", id.ToString(), rr.ToString(), out msgl);
 						Leggiddl(); Caricadatiddl(ddl.SelectedValue);
                     }
                     else
@@ -175,9 +175,11 @@ public partial class schedatrazione : System.Web.UI.Page
             if (rr != 1)
                 sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
             else
+            {
                 sStato.Text = "Cancellazione di " + tTesto.Text + " avvenuta con successo!";
-			id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-			CLogga.logga("trazione", s + where, 3, "Delete trazione", id, out msgl);
+                id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
+                CLogga.logga("trazione", s + where, 3, "Delete trazione", id.ToString(), ddl.SelectedValue.ToString(), out msgl);
+            }
 			Leggiddl(); Caricadatiddl(ddl.SelectedValue);
         }
     }

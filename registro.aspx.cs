@@ -90,7 +90,7 @@ public partial class registro : System.Web.UI.Page
                 if (cds.Tables["ubicazioni"].Rows.Count > 0)
                 {
                     ddlSedi.Items.Clear();
-                    string s = "", ss = "";
+                    string ss = ""; s = "";
                     ddlSedi.Items.Insert(0, new System.Web.UI.WebControls.ListItem("", ""));
                     for (int i = 0; i < cds.Tables["ubicazioni"].Rows.Count; i++)
                     {
@@ -201,7 +201,6 @@ public partial class registro : System.Web.UI.Page
                         PdfStamper pdfStamper = new PdfStamper(pdfReader, new System.IO.FileStream(pagina, System.IO.FileMode.Create));
                         AcroFields form = pdfStamper.AcroFields;
 						string[] keys = form.Fields.Keys.ToArray();
-						string s;
 						form.GenerateAppearances = true;
 						// rinomino tutti i campi
 						for (int k = 0; k < form.Fields.Count; k++)
@@ -628,7 +627,6 @@ public partial class registro : System.Web.UI.Page
 						PdfStamper pdfStamper = new PdfStamper(pdfReader, new System.IO.FileStream(pagina, System.IO.FileMode.Create));
 						AcroFields form = pdfStamper.AcroFields;
 						string[] keys = form.Fields.Keys.ToArray();
-						string s;
 						form.GenerateAppearances = true;
 						// rinomino tutti i campi
 						for (int k = 0; k < form.Fields.Count; k++)

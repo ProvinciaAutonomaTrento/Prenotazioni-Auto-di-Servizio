@@ -1,7 +1,5 @@
 ﻿/*
  *
- *
- *
  * Copyright(C) 2017 Provincia Autonoma di Trento
  *
  * This file is part of<nome applicativo>.
@@ -35,6 +33,7 @@ public partial class anagrafica : System.Web.UI.Page
     public string formatodata = "dd-MM-yyyy";
     public user utenti = new user();
     public user cercato = new user();
+    public Int32 idu; 
 
     private FbConnection cAFbConn = null;
     private ConnessioneFB FBClass = new ConnessioneFB();
@@ -55,8 +54,7 @@ public partial class anagrafica : System.Web.UI.Page
                 ShowPopUpMsg(s);
                 Response.Redirect("default.aspx");
             }
-            cbSetPwd.Visible = false;
-            tpassword.Visible = false;
+            pPwd.Visible = false;            
             LBenvenuto.Text = " Benvenuto " + utenti.nome + " " + utenti.cognome;
             Session.Add("potere", utenti.potere);
             //string[] p = { "", "-1", "utente", "0", "segreteria", "10" , "operatore", "20", "admin", "50" ,  "superadmin", "100"  };
@@ -103,30 +101,45 @@ public partial class anagrafica : System.Web.UI.Page
         Session.Abandon();
         Response.Redirect("Default.aspx");
     }
-
+    private bool checkSession()
+    {
+        idu = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
+        if (idu < 0 || !utenti.cercaid(idu))
+        {
+            string s = "Sessione scaduta. Prego ricollegarsi.";
+            Session.Clear();
+            Session.Abandon();
+            ShowPopUpMsg(s);
+            return (false);
+        }
+        Session.Timeout = 30; // ritacco il conteggio!!!        
+        return (true);
+    }
     protected void cbCerca_Click(object sender, EventArgs e)
     {
         sStato.Text = "";
         // devo salvare o cercare ?
+        if (!checkSession()) Response.Redirect("default.aspx"); // ripristino idu e aid e utenti e verifico sessione ancora attiva
+
         if (cbCercaa.Text == "Cerca")
         {
             tbl.Clear();
-            string s = "", where = ""; bool ok = false;
+            string s = "", where = " b.attiva=1 ";
             s = "SELECT a.*, b.struttura FROM UTENTI a left join strutture b on a.struttura_cod=b.codice ";
 
             if (tNikname.Text.Trim() != "")
-                where += "upper(a.nikname) like \'%" + tNikname.Text.ToUpper() + "%\' and ";
+                where += " and upper(a.nikname) like \'%" + tNikname.Text.ToUpper() + "%\' ";
             if (tMatricola.Text.Trim().Length >= 5)
-                where += "upper(a.matricola) like \'%" + tMatricola.Text.ToUpper() + "%\' and ";
+                where += " and upper(a.matricola) like \'%" + tMatricola.Text.ToUpper() + "%\' ";
             if (tNome.Text.Trim() != "" )
-                where += "upper(a.nome) like \'%" + tNome.Text.ToUpper() + "%\' and ";
+                where += " and upper(a.nome) like \'%" + tNome.Text.ToUpper() + "%\' ";
             if (tCognome.Text.Trim() != "")
-                where += "upper(a.cognome) like \'%" + tCognome.Text.ToUpper() + "%\' and ";
+                where += " and upper(a.cognome) like \'%" + tCognome.Text.ToUpper() + "%\' ";
             if (cbAbilitato.Checked)
-                where += "a.abilitato = 1 and ";
+                where += " and a.abilitato = 1 ";
             if (ddlPotere.SelectedValue != "-1")
-                where += "a.power = " + ddlPotere.SelectedValue  + " and ";
-            if ( where != "" ) s += "where " + where.Substring(0, where.LastIndexOf(" and "));
+                where += " and a.power = " + ddlPotere.SelectedValue  + " ";
+            if (where != "") s += "where " + where; // .Substring(0, where.LastIndexOf(" and "));
             tbl.Clear();
             tbl = FBConn.getfromTbl(s, out msg);
 			if (tbl.Rows.Count > 0)
@@ -155,7 +168,7 @@ public partial class anagrafica : System.Web.UI.Page
             cercato.abilitato = cbAbilitato.Checked;
             cercato.potere = Convert.ToInt16(ddlPotere.SelectedValue);
 
-            cercato.registradatiutente(out msg);
+            cercato.registradatiutente(Session["iduser"].ToString(), out msg);
             if (msg.Length > 0) { sStato.Text = "ERRORE: " + msg; return; }
             piallatext();
 
@@ -178,7 +191,7 @@ public partial class anagrafica : System.Web.UI.Page
                     gm.body += "Username:          \t" + cercato.nikname + "\n";
                     gm.body += "Password:          \t" + cercato.password + "\n\n";
                     gm.body += "\tAl primo accesso, Le sarà chiesto di modificare la password.\n";
-                    gm.body += "Grazie.\n\nUff. Gestioni Generali\nGestore autorizzazioni";
+                    gm.body += "Grazie.\n\nUff. Gestioni comuni\nGestore autorizzazioni";
                     s = "ABILITAZIONE";
                 }
                 else
@@ -186,7 +199,7 @@ public partial class anagrafica : System.Web.UI.Page
                     gm.subject = "Gestione flotta provinciale: avviso disabilitazione utente.";
                     gm.body = string.Format("Buongiorno gentile {0} {1}\n", cercato.nome, cercato.cognome);
                     gm.body += "La informiamo che la Sua utenza per l\'accesso all\'applicazione \"Prenotazioni Auto di Servizio\" è stata disabilitata.\n\n";
-                    gm.body += "Cordilai saluti.\n\nUff. Gestioni Generali\nGestore autorizzazioni";
+                    gm.body += "Cordilai saluti.\n\nUff. Gestioni comuni\nGestore autorizzazioni";
                     s = "DISABILITAZIONE";
                 }
                 if (!gm.mandamail("", 0, "", "", out msg))
@@ -254,8 +267,7 @@ public partial class anagrafica : System.Web.UI.Page
                 ddlPotere.SelectedValue = cercato.potere.ToString();
                 cbCercaa.Text = "Salva";
                 sStato.Text = "";
-                cbSetPwd.Visible = true;
-                tpassword.Visible = true;
+                pPwd.Visible = true;
                 cbreset.Visible = true;
             }
             else
@@ -278,7 +290,9 @@ public partial class anagrafica : System.Web.UI.Page
             if (cercato.cercanikname(tNikname.Text.Trim(), ""))
             {
                 cercato.password = tpassword.Text.Trim();
-                if (!cercato.registradatiutente(out msg))
+                cercato.forzocambiopassword = chForza.Checked;
+                string maker = Session["iduser"] != null ? Session["iduser"].ToString() : "";
+                if (!cercato.registradatiutente(maker, out msg))
                 {
                     sStato.Text = "Problema su impostazione password. Contattare l'amministratore al n. " + Session["assistenza"].ToString();
                 }
@@ -286,6 +300,7 @@ public partial class anagrafica : System.Web.UI.Page
                     sStato.Text = "Password imposta con successo!";
             };
             tpassword.Text = "";
+            chForza.Checked = false;
         }
     }
 
@@ -301,8 +316,7 @@ public partial class anagrafica : System.Web.UI.Page
         ddlPotere.SelectedIndex = 0;
         cbCercaa.Text = "Cerca";
         sStato.Text = "";
-        cbSetPwd.Visible = false;
-        tpassword.Visible = false;
+        pPwd.Visible = false;
         cbreset.Visible = false;
         pElenco.Visible = false;
     }

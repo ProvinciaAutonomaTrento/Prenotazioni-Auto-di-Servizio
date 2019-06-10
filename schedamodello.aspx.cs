@@ -94,14 +94,14 @@ public partial class schedamodello : System.Web.UI.Page
             msg = "";
             ds.Clear();
             string s, where; int i = ddl.SelectedIndex;
-            s = "update modello set marca=\'" + tTesto.Text + "\', abilitato=" + (cbAbilitata.Checked ? "1" : "0");
+            s = "update modello set modello=\'" + tTesto.Text + "\', abilitato=" + (cbAbilitata.Checked ? "1" : "0");
             where = " where id=" + ddl.SelectedValue;
             Int32 rr = FBConn.EsegueCmd(s + where, out msg);
 			if (rr == 1)
 			{
 				sStato.Text = "Operazione salvataggio dati andata a buon fine.";
 				id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-				CLogga.logga("modello", s + where, 2, "Modifica modello", id, out msgl);
+				CLogga.logga("modello", s + where, 2, "Modifica modello", id.ToString(), ddl.SelectedValue.ToString(), out msgl);
 			}
 			else
 				sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
@@ -137,14 +137,14 @@ public partial class schedamodello : System.Web.UI.Page
                 }
                 else //posso inserire nuova sede
                 {
-                    s = "insert into modello (id, modello, abilitato) values (null, \'" + tTesto.Text + "\', " + (cbAbilitata.Checked ? "1" : "0") + ")";
+                    s = "insert into modello (id, modello, abilitato) values (null, \'" + tTesto.Text + "\', " + (cbAbilitata.Checked ? "1" : "0") + ")  returning id ";
                     msg = "";
-                    Int32 rr = FBConn.EsegueCmd(s, out msg);
-					if (rr == 1)
+                    Int32 rr = FBConn.AddCmd(s, out msg);
+					if (rr > 0)
 					{
 						sStato.Text = "Operazione salvataggio dati andata a buon fine.";
 						id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-						CLogga.logga("modello", s, 1, "Insert modello", id, out msgl);
+						CLogga.logga("modello", s, 1, "Insert modello", id.ToString(), rr.ToString(), out msgl);
 					}
 					else
 						sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
@@ -172,14 +172,14 @@ public partial class schedamodello : System.Web.UI.Page
             msg = "";
             Int32 rr = FBConn.EsegueCmd(s + where, out msg);
 
-            if (rr != 1)
+            if (rr == 1)
 			{
-				sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
-				id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-				CLogga.logga("modello", s + where, 3, "Delete modello", id, out msgl);
+                sStato.Text = "Cancellazione di " + tTesto.Text + " avvenuta con successo!";
+                id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
+				CLogga.logga("modello", s + where, 3, "Delete modello", id.ToString(), ddl.SelectedValue.ToString(), out msgl);
 			}
 			else
-                sStato.Text = "Cancellazione di " + tTesto.Text + " avvenuta con successo!";
+                sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
             Leggiddl();
             Caricadatiddl(ddl.SelectedValue.ToString());
         }

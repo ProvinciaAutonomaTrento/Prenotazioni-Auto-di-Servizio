@@ -258,6 +258,16 @@
             <tr>
                 <td class="auto-style33">&nbsp;</td>
                 <td class="auto-style2">&nbsp;</td>
+                <td class="auto-style5">Cellulare</td>
+                <td class="auto-style13">
+                    <asp:TextBox ID="tCell" runat="server" Width="241px" ></asp:TextBox>
+                </td>
+                <td class="auto-style14">&nbsp;</td>
+                <td class="auto-style25">&nbsp;</td>
+            </tr>
+            <tr>
+                <td class="auto-style33">&nbsp;</td>
+                <td class="auto-style2">&nbsp;</td>
                 <td class="auto-style5">E-mail (ripeti email)</td>
                 <td class="auto-style13">
                     <asp:TextBox ID="tMail2" runat="server" Width="241px" ></asp:TextBox>
@@ -309,7 +319,7 @@
         </asp:Panel>
     </p>    
     <div style="text-align: center; margin: 0px auto;">
-         <asp:TextBox ID="tStato" runat="server" Border="1" Width="1200px" Align="Center" Style="text-align: center;"></asp:TextBox>
+         <asp:TextBox ID="tStato" runat="server" Border="1" Width="1200px" Align="Center" Style="text-align: center; font-size:larger;"></asp:TextBox>
     </div>
     <div style="text-align: center; margin: 0px auto;">
         <asp:HyperLink ID="hlHome" runat="server" NavigateUrl="~/Default.aspx" Target="_self" Align="Center">Home</asp:HyperLink>    

@@ -102,7 +102,7 @@ public partial class schedacambio : System.Web.UI.Page
 			{
 				sStato.Text = "Operazione salvataggio dati andata a buon fine.";
 				id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-				CLogga.logga("cambio", s + where, 2, "Modifica cambio", id, out msgl);
+				CLogga.logga("cambio", s + where, 2, "Modifica cambio", id.ToString(), ddl.SelectedValue.ToString(), out msgl);
 			}
 			else
 				sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
@@ -138,13 +138,13 @@ public partial class schedacambio : System.Web.UI.Page
                 }
                 else //posso inserire nuova sede
                 {
-                    s = "insert into cambio (id, cambio, abilitato) values (null, \'" + tTesto.Text + "\', " + (cbAbilitata.Checked ? "1" : "0") + ")";
+                    s = "insert into cambio (id, cambio, abilitato) values (null, \'" + tTesto.Text + "\', " + (cbAbilitata.Checked ? "1" : "0") + ") returning id ";
                     msg = "";
-                    Int32 rr = FBConn.EsegueCmd(s, out msg);
-                    if (rr == 1)
+                    Int32 rr = FBConn.AddCmd(s, out msg);
+                    if (rr > 0)
                     {
 						id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-						CLogga.logga("cambio", s, 2, "Insert cambio voce", id, out msgl);
+						CLogga.logga("cambio", s, 2, "Insert cambio voce", id.ToString(), rr.ToString(), out msgl);
 						sStato.Text = "Operazione inserimento dati andata a buon fine.";
                         Leggiddl(); Caricadatiddl(ddl.SelectedValue.ToString());
                     }
@@ -178,12 +178,11 @@ public partial class schedacambio : System.Web.UI.Page
 			{
 				sStato.Text = "Cancellazione di " + tTesto.Text + " avvenuta con successo!";
 				id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-				CLogga.logga("cambio", s + where, 3, "Cancellazione cambio", id, out msgl);
+				CLogga.logga("cambio", s + where, 3, "Cancellazione cambio", id.ToString(), ddl.SelectedValue.ToString(), out msgl);
 			}
             Leggiddl(); Caricadatiddl(ddl.SelectedValue.ToString());
         }
     }
-
     public void Leggiddl()
     {
         // devo leggere la tabella cambio

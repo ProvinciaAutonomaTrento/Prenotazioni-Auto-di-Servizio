@@ -62,7 +62,7 @@ public partial class ConfermaPrenotazionedn : System.Web.UI.Page
 			// carico dati prenotazione
 			//int test = -1;
 			string msg = "";
-			if (pre.carica(Session["idp"].ToString(), out msg))
+			if (pre.carica(Session["idp"].ToString(), out msg)) // campi nascosti per recupero dati javascript
 			{
 				msg = "";
 				npartenza.Attributes.Add("value", (pre.ubicazione_Via + " " + pre.ubicazione_Civico + ", " + pre.ubicazione_Città));
@@ -78,8 +78,9 @@ public partial class ConfermaPrenotazionedn : System.Web.UI.Page
 			lDestinazione.Text = pre.dove_comune + " (" + pre.dove_sigla + ")";
 			lPartenza.Text = string.Format("{0} alle ore {1:00}", pre.partenza.ToString("dd-MM-yyyy"), pre.partenza.ToString("HH:mm"));
 			lRientro.Text = string.Format("{0} alle ore {1:00}", pre.arrivo.ToString("dd-MM-yyyy"), pre.arrivo.ToString("HH:mm"));
-			lRitiro.Text = string.Format("{0} aperto dalle {1}-{2}", pre.ubicazione, pre.ubicazione_dalle.ToString("HH:mm"), pre.ubicazione_alle.ToString("HH:mm"));
-			lPasseggeri.Text = string.Format("{0}", System.Convert.ToInt16(pre.passeggeri) + System.Convert.ToInt16(pre.aggregati));
+			lRitiro0.Text = string.Format("{0} aperto dalle {1}-{2}", pre.ubicazione0, pre.ubicazione0_dalle.ToString("HH:mm"), pre.ubicazione0_alle.ToString("HH:mm"));
+            lRitiro.Text = string.Format("{0} aperto dalle {1}-{2}", pre.ubicazione, pre.ubicazione_dalle.ToString("HH:mm"), pre.ubicazione_alle.ToString("HH:mm"));
+            lPasseggeri.Text = string.Format("{0}", System.Convert.ToInt16(pre.passeggeri) + System.Convert.ToInt16(pre.aggregati));
 			lVeicolo.Text = string.Format("{0} - {1}  targa {2}{3}", pre.marca, pre.modello, pre.targa, pre.blackbox == "1" ? ", black box a bordo" : "");
 			lNumero.Text = string.Format("{0}", pre.numero);
 			lDriver.Text = string.Format("{0}", pre.nome + " " + pre.cognome + " tel. " + pre.tel);
@@ -115,7 +116,7 @@ public partial class ConfermaPrenotazionedn : System.Web.UI.Page
 					dati[0] = string.Format("{0} ({1})", pre.dove_comune, pre.dove_sigla);
 					dati[1] = string.Format("{0} alle ore {1}", pre.partenza.ToString("dd-MM-yyyy"), pre.partenza.ToString("HH:mm"));
 					dati[2] = string.Format("{0} alle ore {1}", pre.arrivo.ToString("dd-MM-yyyy"), pre.arrivo.ToString("HH:mm"));
-					dati[3] = string.Format("{0}\n{1} {2} {3}\nOrario apertura: {4}-{5}", pre.ubicazione, pre.ubicazione_Via, pre.ubicazione_Civico, pre.ubicazione_Città, pre.ubicazione_dalle.ToString("HH:mm"), pre.ubicazione_alle.ToString("HH:mm"));
+					dati[3] = string.Format("{0}\n{1} {2} {3}\nOrario apertura: {4}-{5}", pre.ubicazione0, pre.ubicazione0_Via, pre.ubicazione0_Civico, pre.ubicazione0_Città, pre.ubicazione0_dalle.ToString("HH:mm"), pre.ubicazione0_alle.ToString("HH:mm"));
 					dati[4] = string.Format("{0} {1} {2}", pre.marca, pre.modello, (pre.blackbox == "1" ? " black box a bordo" : ""));
 					dati[5] = string.Format("{0},  targa {1}{2}", pre.numero, pre.targa, (pre.posteggio.Trim() != "" ? (", posteggio " + pre.posteggio) : ""));
 					dati[6] = pre.nome + " " + pre.cognome + "  tel. " + pre.tel;
@@ -147,8 +148,8 @@ public partial class ConfermaPrenotazionedn : System.Web.UI.Page
 						dati[6] = pre.targa;
 						dati[7] = pre.nome + " " + pre.cognome;
 						dati[8] = string.Format("{0}", DateTime.Now.Date.ToString("dd-MM-yyyy"));
-						ms = FillPdfStream((SaveLocation + "\\moduli\\" + pre.delega.Trim() + ".pdf"), dati);
-						Attachment dataestero = new Attachment(ms, "Module_delega_estero_" + pre.partenza.ToString("dd-MM-yyyy") + ".pdf", "application/pdf");
+						ms = FillPdfStream((SaveLocation + "moduli\\" + pre.delega.Trim()), dati);
+						Attachment dataestero = new Attachment(ms, "Modulo_delega_estero_" + pre.partenza.ToString("dd-MM-yyyy") + ".pdf", "application/pdf");
 						mail.Attachments.Add(dataestero);
 					}
 					mail.Subject = string.Format("Foglio di prenotazione per viaggi con autovettura di servizio. ({0}, {1} - {2})", pre.dove_comune, pre.partenza, pre.arrivo);
@@ -276,7 +277,7 @@ public partial class ConfermaPrenotazionedn : System.Web.UI.Page
 		dati[0] = string.Format("{0} ({1})", pre.dove_comune, pre.dove_sigla);
 		dati[1] = string.Format("{0} alle ore {1}", pre.partenza.ToString("dd-MM-yyyy"), pre.partenza.ToString("HH:mm"));
 		dati[2] = string.Format("{0} alle ore {1}", pre.arrivo.ToString("dd-MM-yyyy"), pre.arrivo.ToString("HH:mm"));
-		dati[3] = string.Format("{0}\n{1} {2} {3}\nOrario apertura: {4}-{5}", pre.ubicazione, pre.ubicazione_Via, pre.ubicazione_Civico, pre.ubicazione_Città, pre.ubicazione_dalle.ToString("HH:mm"), pre.ubicazione_alle.ToString("HH:mm"));
+		dati[3] = string.Format("{0}\n{1} {2} {3}\nOrario apertura: {4}-{5}", pre.ubicazione0, pre.ubicazione0_Via, pre.ubicazione0_Civico, pre.ubicazione0_Città, pre.ubicazione0_dalle.ToString("HH:mm"), pre.ubicazione0_alle.ToString("HH:mm"));
 		dati[4] = string.Format("{0} {1} {2}", pre.marca, pre.modello, (pre.blackbox == "1" ? " black box a bordo" : ""));
 		dati[5] = string.Format("{0}, targa {1}{2}", pre.numero, pre.targa, (pre.posteggio.Trim() != "" ? (", posteggio " + pre.posteggio) : ""));
 		dati[6] = pre.nome + " " + pre.cognome + "  tel. " + pre.tel;
@@ -300,7 +301,7 @@ public partial class ConfermaPrenotazionedn : System.Web.UI.Page
 		utenti.cercaid(aidl);
 		string nome_base;
 		string SaveLocation = Server.MapPath("Data") + "\\";
-		nome_base = SaveLocation + "moduli\\modulo_delega_estero";
+		nome_base = SaveLocation + "moduli\\"+ pre.delega.Trim();
 		dest = nome_base;
 		MemoryStream ms = new MemoryStream();
 		string s = DateTime.Now.Year.ToString();

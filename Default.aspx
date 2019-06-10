@@ -1,8 +1,4 @@
 ﻿<%--
- *
- * 
- * 
- * 
  * Copyright (C) 2017 Provincia Autonoma di Trento
  *
  * This file is part of <nome applicativo>.
@@ -21,9 +17,7 @@
  * 
  */ --%>
 
-
 <%@ Page Title="Gestione flotta provinciale" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true"  CodeFile="Default.aspx.cs" Inherits="_Default" %>
-
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <style>
         .bradius { border-radius: 4px; box-sizing: border-box; }    

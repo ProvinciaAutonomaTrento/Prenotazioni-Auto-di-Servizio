@@ -103,7 +103,7 @@ public partial class schedaclassificazione : System.Web.UI.Page
 			{
 				sStato.Text = "Operazione salvataggio dati andata a buon fine.";
 				id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-				CLogga.logga("cambio", s + where, 2, "Modifica classificazione", id, out msgl);
+				CLogga.logga("cambio", s + where, 2, "Modifica classificazione", id.ToString(), ddl.SelectedValue.ToString(), out msgl);
 			}
 			else
 				sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
@@ -139,14 +139,14 @@ public partial class schedaclassificazione : System.Web.UI.Page
                 }
                 else //posso inserire nuova sede
                 {
-                    s = "insert into classificazione (id, classificazione, abilitato, rischio) values (null, \'" + tTesto.Text + "\', " + (cbAbilitata.Checked ? "1" : "0") + ", " + ddlSicurezza.SelectedValue + ")";
+                    s = "insert into classificazione (id, classificazione, abilitato, rischio) values (null, \'" + tTesto.Text + "\', " + (cbAbilitata.Checked ? "1" : "0") + ", " + ddlSicurezza.SelectedValue + ")  returning id ";
                     msg = "";
-                    Int32 rr = FBConn.EsegueCmd(s, out msg);
-					if (rr == 1)
+                    Int32 rr = FBConn.AddCmd(s, out msg);
+					if (rr > 0)
 					{
-						sStato.Text = "Operazione salvataggio dati andata a buon fine.";
+						sStato.Text = "Operazione aggiunta dati andata a buon fine.";
 						id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-						CLogga.logga("cambio", s, 1, "Insert cambio", id, out msgl);
+						CLogga.logga("cambio", s, 1, "Insert classificazione", id.ToString(), rr.ToString(), out msgl);
 					}
 					else
 						sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
@@ -174,14 +174,16 @@ public partial class schedaclassificazione : System.Web.UI.Page
             msg = "";
             Int32 rr = FBConn.EsegueCmd(s + where, out msg);
 
-			if (rr != 1)
-			{
-				sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
-				id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
-				CLogga.logga("cambio", s + where, 3, "Delete classificazione cambio", id, out msgl);
-			}
-			else
-				sStato.Text = "Cancellazione di " + tTesto.Text + " avvenuta con successo!";
+            if (rr != 1)
+            {
+                sStato.Text = "ATTENZIONE: si è verificato un\'errore: " + msg + ". Contattare l'assistenza al numero " + (string)Session["assistenza"];
+            }
+            else
+            {
+                id = Session["iduser"] != null ? Int32.Parse(Session["iduser"].ToString()) : -1;
+                CLogga.logga("classificazione", s + where, 3, "Delete classificazione", id.ToString(), ddl.SelectedValue.ToString(), out msgl);
+                sStato.Text = "Cancellazione di " + tTesto.Text + " avvenuta con successo!";
+            }
             Leggiddl();
             Caricadatiddl(ddl.SelectedValue);
         }

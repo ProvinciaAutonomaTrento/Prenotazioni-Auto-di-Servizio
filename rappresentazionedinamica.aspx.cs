@@ -232,7 +232,7 @@ public partial class rappresentazionedinamica : System.Web.UI.Page
 			int[] numero = new int[giorni];
 			String[] dates = new String[giorni];
 			for (int i = 0; i < giorni; i++) { numero[i] = 0; }// inizializzo
-			string s; int y, m, d, H, min, sec;
+			int y, m, d, H, min, sec;
 			DateTime dd, ad, oggi = dada;
 			for (int gg = 0; gg < giorni; gg++)
 			{
@@ -374,7 +374,7 @@ public partial class rappresentazionedinamica : System.Web.UI.Page
 			int[] numero = new int[giorni];
 			String[] dates = new String[giorni];
 			for (int i = 0; i < giorni; i++) { numero[i] = 0; }// inizializzo
-			string s; int y, m, d, H, min, sec;
+			int y, m, d, H, min, sec;
 			DateTime dd, ad, oggi = dada;
 			for (int gg = 0; gg < giorni; gg++)
 			{

@@ -106,7 +106,7 @@ public partial class cambiopasswrd : System.Web.UI.Page
                 int giorni = 365;
                 giorni = ds.Tables["setup"].Rows[0]["valore"] != DBNull.Value ? Convert.ToInt16(ds.Tables["setup"].Rows[0]["valore"]) : 365;
                 utenti.scadenzapassword = DateTime.Now.AddDays(giorni); 
-                ok = utenti.registradatiutente(out  msg);                
+                ok = utenti.registradatiutente(id.ToString(), out  msg);                
                 if (!ok)
                 {
                     ShowPopUpMsg("Cambio della password non riuscito! Premi un tasto per continuare.");

@@ -81,7 +81,7 @@ public partial class _Default : Page
         string msg = "";
         bool ok = utenti.dimenticatolapassword(nn, out msg);
         utenti.clearuser();
-		sStato.Text = "Nuove credenziali di accesso inviate con successo.";
+		if (ok) sStato.Text = "Nuove credenziali di accesso inviate con successo.";
         ShowPopUpMsg(msg);
     }
 
@@ -177,6 +177,7 @@ public partial class _Default : Page
 
     protected void cbRegistrati_Click(object sender, EventArgs e)
     {
+        Session.Abandon();
         Response.Redirect("mydatas.aspx");
     }
 

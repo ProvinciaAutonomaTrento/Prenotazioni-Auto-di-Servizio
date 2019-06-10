@@ -97,7 +97,6 @@ public partial class editpre : System.Web.UI.Page
         Session.Add("strapotere", utenti.potere);
         return (true);
     }
-
     public void LeggiUbi() // devo leggere la tabella Ubicazione e Ritiro chiavi
     {
         msg = "";
@@ -169,7 +168,6 @@ public partial class editpre : System.Web.UI.Page
                 sStato.Text = "ATTENZIONE: si è verificato un\'errore: non ci sono occorrenze nella tabella AUTOMEZZI. Contattare l'assistenza al numero " + (string)Session["assistenza"];
         }
     }
-
     public void LeggiNumero()
     {
         // ddltarga
@@ -258,7 +256,7 @@ public partial class editpre : System.Web.UI.Page
 		if (tbl != null && tbl.Rows.Count > 0) // ci sono altre prenotazioni che si sovrappongono con quelle già effettute da quell'utente
 		{
 			Session.Add("qry", qry);
-			pFiltro.Visible = false; // nascono il pannello filtri
+			pFiltro.Visible = false; // nascondo il pannello filtri
 			RiempiPrenotazioni(tbl, colonna, ordine);
 			piallatext();
 			ddlTarga.SelectedValue = "";
@@ -335,19 +333,15 @@ public partial class editpre : System.Web.UI.Page
         gwPrenotazioni.Visible = true;
         return (true);
     }
-
     protected void gPrenotazioni_SelectedIndexChanged(object sender, EventArgs e)
     {
         int key = gwPrenotazioni.SelectedValue != null ? Convert.ToInt32(gwPrenotazioni.SelectedValue.ToString()) : -1;
 		//gwPrenotazioni.DataSource = GetData();
 		//gwPrenotazioni.DataBind();
 		int riga = gwPrenotazioni.SelectedIndex;
-
 		Session.Add("idp", key.ToString());
-
 		GridViewRow row = gwPrenotazioni.SelectedRow;
-        DateTime dt;
-		
+        DateTime dt;		
 		dt = row.Cells[3] != null ? DateTime.Parse(row.Cells[3].Text) : DateTime.Now.Date.AddDays(-1);
         if (dt < DateTime.Now)
         {
@@ -357,7 +351,6 @@ public partial class editpre : System.Web.UI.Page
         gwPrenotazioni.Visible = false;
         Response.Redirect("pre.aspx?idp=" + key.ToString());
     }
-
     protected void cbReset_Click(object sender, EventArgs e)
     {
         piallatext();
@@ -372,7 +365,6 @@ public partial class editpre : System.Web.UI.Page
 		cldA.TodaysDate = DateTime.Now;
 		cldA.SelectedDates.Clear();
 	}
-
 	protected void bnuova_Click(object sender, EventArgs e)
 	{
 		piallatext();
@@ -381,7 +373,6 @@ public partial class editpre : System.Web.UI.Page
 		bnuova.Visible = false;
 		tRiepilogo.Visible = false;
 	}
-
 	protected void gPrenotazioni_RowDeleting(object sender, GridViewDeleteEventArgs e)
 	{
 		gwPrenotazioni.Visible = false;
@@ -412,7 +403,6 @@ public partial class editpre : System.Web.UI.Page
 		cbcConferma.Visible = true;
 		sStato.Text = "";
 	}
-
 	protected void cbcCancella_Click(object sender, EventArgs e)
 	{
 		// Cerco la prenotazione, carico i dati in tbl
@@ -457,9 +447,10 @@ public partial class editpre : System.Web.UI.Page
 			gm.body += "Targa:        \t\t" + pre.targa + "\n";
 			gm.body += "Marca-Modello:\t\t" + pre.marca + " " + pre.modello + "\n";
 			gm.body += "Ritiro chiavi:\t\t" + pre.ubicazione_desc + "\n\n";
-			gm.body += "Cordiali saluti.\n\n";
-			gm.body += "Non rispondere alla mail. La presente è stata inviata da un sistema automatico.";
-			gm.numeritel = "0461 - 496415";
+			gm.body += "Cordiali saluti.\n\n\n";
+			gm.body += "La presente mail e\' stata inviata da un sistema automatizzato. Non saranno prese in considerazione mail di sisposta.\n\n\n";
+
+            gm.numeritel = "0461 - 496415";
 			
 			bool spedita = gm.mandamail("", 0, "", "", out msg);
 			if (!spedita)
@@ -476,15 +467,13 @@ public partial class editpre : System.Web.UI.Page
 		Panel1.Visible = true;
 		bnuova_Click(this, e = new EventArgs());
 	}
-
 	protected void cbhome_Click(object sender, EventArgs e)
 	{
 		cbcConferma.Visible = false;
 		gwPrenotazioni.Visible = true;
 		tRiepilogo.Visible = false;
 		Panel1.Visible = true;
-	}
-	
+	}	
 	protected void gwPrenotazioni_RowDataBound(object sender, GridViewRowEventArgs e)
 	{
 		if (e.Row.Cells[3] != null)
@@ -498,7 +487,6 @@ public partial class editpre : System.Web.UI.Page
             }
 		}
 	}
-
 	protected void gwPrenotazioni_Sorting(object sender, GridViewSortEventArgs e)
 	{
 		string qry = Session["qry"].ToString() != null && Session["qry"].ToString() != "" ? Session["qry"].ToString() : "";
@@ -510,7 +498,6 @@ public partial class editpre : System.Web.UI.Page
 		}
 		//Cerca(this, e, e.SortExpression, "DESC");
 	}
-
     protected void cbRapido_Command(object sender, CommandEventArgs e)
     {
         checkSession();

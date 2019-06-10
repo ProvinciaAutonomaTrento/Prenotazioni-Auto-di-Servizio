@@ -258,7 +258,14 @@ function printPage(id) {
         </asp:TableRow>
         <asp:TableRow runat="server" HorizontalAlign="Left">
             <asp:TableCell runat="server" Width="10px"></asp:TableCell>
-            <asp:TableCell runat="server">sede ritiro chiavi:</asp:TableCell>
+            <asp:TableCell runat="server">sede ritiro <b>chiavi</b>:</asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+            <asp:TableCell runat="server"><asp:Label ID="lRitiro0" runat="server"></asp:Label></asp:TableCell>
+            <asp:TableCell runat="server"></asp:TableCell>
+        </asp:TableRow>
+        <asp:TableRow runat="server" HorizontalAlign="Left">
+            <asp:TableCell runat="server" Width="10px"></asp:TableCell>
+            <asp:TableCell runat="server">sede ritiro <b>veicolo</b>:</asp:TableCell>
             <asp:TableCell runat="server"></asp:TableCell>
             <asp:TableCell runat="server"><asp:Label ID="lRitiro" runat="server"></asp:Label></asp:TableCell>
             <asp:TableCell runat="server"></asp:TableCell>
