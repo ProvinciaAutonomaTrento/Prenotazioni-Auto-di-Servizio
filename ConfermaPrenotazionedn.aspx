@@ -1,4 +1,4 @@
-﻿<%--
+<%--
  /*
  * Copyright(C) 2017 Provincia Autonoma di Trento
  *
@@ -60,7 +60,7 @@
     }
     @page {size: 210mm 297mm; margin: 16mm;}
     </style>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA2hJKSHX_tREFJCyXca2toiuOdegB6euk"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></script>
 <script type="text/javascript">
 var directionDisplay;
 var directionsService = new google.maps.DirectionsService();
@@ -311,7 +311,7 @@ function printPage(id) {
     </div>
     <br /><br />
     <div id="nota" style="clear: both; margin: 0px auto; text-align: center; width: 1024px;" >
-    <strong>NOTA:</strong> RAMMENTIAMO CHE AI SENSI DEL DISCIPLINARE D’USO DELLE AUTO DI SERVIZIO I RIFORNIMENTI DI CARBURANTE VANNO EFFETTUATI TASSATIVAMENTE PRESSO LE COLONNE SELF SERVICE. 
+    <strong>NOTA:</strong> RAMMENTIAMO CHE AI SENSI DEL DISCIPLINARE D�USO DELLE AUTO DI SERVIZIO I RIFORNIMENTI DI CARBURANTE VANNO EFFETTUATI TASSATIVAMENTE PRESSO LE COLONNE SELF SERVICE. 
     </div>
     <br />
     
